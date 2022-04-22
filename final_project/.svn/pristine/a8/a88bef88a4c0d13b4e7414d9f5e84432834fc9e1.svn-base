@@ -1,0 +1,280 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+
+
+<link rel="stylesheet" href="/resources/fullcalendar/main.css">
+<script src="/resources/fullcalendar/main.js"></script>
+<script src="/resources/fullcalendar/ko.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+
+$(document).ready(function() {
+    var Calendar = FullCalendar.Calendar;
+    var Draggable = FullCalendar.Draggable;
+    var calendarEl = document.getElementById('calendar');
+
+    // initialize the calendar
+    // -----------------------------------------------------------------
+
+    var calendar = new Calendar(calendarEl, {
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek'
+      },
+      initialView: 'dayGridMonth',
+      selectable:true,
+      editable: true,
+      droppable: true, // this allows things to be dropped onto the calendar
+      drop: function(info) {
+        // is the "remove after drop" checkbox checked?
+        if (checkbox.checked) {
+          // if so, remove the element from the "Draggable Events" list
+          info.draggedEl.parentNode.removeChild(info.draggedEl);
+        }
+      },
+      locale:'ko',
+      events:[
+    	  
+      ],
+      dateClick:function(info){
+    	  var today = new Date();
+    	  var year = today.getFullYear();
+    	  var month = ('0' + (today.getMonth() + 1)).slice(-2);
+    	  var day = ('0' + today.getDate()).slice(-2);
+
+    	  var todayFormat = year + '-' + month  + '-' + day;
+    	  
+    	  if(info.dateStr < todayFormat){
+    		  swal("예약 불가","예약은 오늘 날짜 이후부터 가능합니다.", "warning");
+    	  }else if(todayFormat <= info.dateStr){
+	      	$("#exampleModal").modal("show");
+	      	$("#ckdate").attr("value", info.dateStr)    		  
+    	  }
+      },
+      
+    });
+
+    calendar.render();
+  });
+  
+  
+//Byte 수 체크 제한
+function fnChkByte(obj, maxByte)
+{
+    var str = obj.value;
+    var str_len = str.length;
+
+
+    var rbyte = 0;
+    var rlen = 0;
+    var one_char = "";
+    var str2 = "";
+
+
+    for(var i=0; i<str_len; i++)
+    {
+        one_char = str.charAt(i);
+        if(escape(one_char).length > 4) {
+            rbyte += 2;                                         //한글2Byte
+        }else{
+            rbyte++;                                            //영문 등 나머지 1Byte
+        }
+        if(rbyte <= maxByte){
+            rlen = i+1;                                          //return할 문자열 갯수
+        }
+     }
+     if(rbyte > maxByte)
+     {
+        // alert("한글 "+(maxByte/2)+"자 / 영문 "+maxByte+"자를 초과 입력할 수 없습니다.");
+        alert("메세지는 최대 " + maxByte + "byte를 초과할 수 없습니다.")
+        str2 = str.substr(0,rlen);                                  //문자열 자르기
+        obj.value = str2;
+        fnChkByte(obj, maxByte);
+     }
+     else
+     {
+        document.getElementById('byteInfo').innerText = rbyte;
+     }
+}
+</script>
+<style>
+#calendar{
+	width: 500px;
+}
+
+</style>
+<div class="main_content_iner ">
+	<div class="container-fluid p-0">
+		<div class="row justify-content-center">
+		<div class="col-12">
+		<div class="QA_section">
+		<div class="white_box_tittle list_header">
+			<h4>예약</h4>
+		</div>
+		<div class="white_box" style="height: auto">
+			<div id="calendar" style="float: left; margin-right: 100px;"></div>
+		
+			<div class="white_box card_height_100" style="width: 100%; float: right: ;">
+<div class="box_header border_bottom_1px  ">
+<div class="main-title">
+<h3 class="mb_25">Hospital Staff</h3>
+</div>
+</div>
+<div class="staf_list_wrapper sraf_active owl-carousel owl-loaded owl-drag">
+
+
+<div class="owl-stage-outer"><div class="owl-stage" style="transform: translate3d(-2572px, 0px, 0px); transition: all 0.8s ease 0s; width: 3743px;"><div class="owl-item cloned" style="width: 203.88px; margin-right: 30px;"><div class="single_staf">
+<div class="staf_thumb">
+<img src="img/staf/5.png" alt="">
+</div>
+<h4>Dr. Sysla J Smith</h4>
+<p>Doctor</p>
+</div></div><div class="owl-item cloned" style="width: 203.88px; margin-right: 30px;"><div class="single_staf">
+<div class="staf_thumb">
+<img src="img/staf/1.png" alt="">
+</div>
+<h4>Dr. Sysla J Smith</h4>
+<p>Doctor</p>
+</div></div><div class="owl-item cloned" style="width: 203.88px; margin-right: 30px;"><div class="single_staf">
+<div class="staf_thumb">
+<img src="img/staf/2.png" alt="">
+</div>
+<h4>Dr. Sysla J Smith</h4>
+<p>Doctor</p>
+</div></div><div class="owl-item cloned" style="width: 203.88px; margin-right: 30px;"><div class="single_staf">
+<div class="staf_thumb">
+ <img src="img/staf/3.png" alt="">
+</div>
+<h4>Dr. Sysla J Smith</h4>
+<p>Doctor</p>
+</div></div><div class="owl-item" style="width: 203.88px; margin-right: 30px;"><div class="single_staf">
+<div class="staf_thumb">
+<img src="img/staf/1.png" alt="">
+</div>
+<h4>Dr. Sysla J Smith</h4>
+<p>Doctor</p>
+</div></div><div class="owl-item" style="width: 203.88px; margin-right: 30px;"><div class="single_staf">
+<div class="staf_thumb">
+<img src="img/staf/2.png" alt="">
+</div>
+<h4>Dr. Sysla J Smith</h4>
+<p>Doctor</p>
+</div></div><div class="owl-item" style="width: 203.88px; margin-right: 30px;"><div class="single_staf">
+<div class="staf_thumb">
+<img src="img/staf/3.png" alt="">
+</div>
+<h4>Dr. Sysla J Smith</h4>
+<p>Doctor</p>
+</div></div><div class="owl-item" style="width: 203.88px; margin-right: 30px;"><div class="single_staf">
+<div class="staf_thumb">
+<img src="img/staf/4.png" alt="">
+</div>
+<h4>Dr. Sysla J Smith</h4>
+<p>Doctor</p>
+</div></div><div class="owl-item" style="width: 203.88px; margin-right: 30px;"><div class="single_staf">
+<div class="staf_thumb">
+<img src="img/staf/5.png" alt="">
+</div>
+<h4>Dr. Sysla J Smith</h4>
+<p>Doctor</p>
+</div></div><div class="owl-item" style="width: 203.88px; margin-right: 30px;"><div class="single_staf">
+<div class="staf_thumb">
+<img src="img/staf/1.png" alt="">
+</div>
+<h4>Dr. Sysla J Smith</h4>
+<p>Doctor</p>
+</div></div><div class="owl-item" style="width: 203.88px; margin-right: 30px;"><div class="single_staf">
+<div class="staf_thumb">
+<img src="img/staf/2.png" alt="">
+</div>
+<h4>Dr. Sysla J Smith</h4>
+<p>Doctor</p>
+</div></div><div class="owl-item active" style="width: 203.88px; margin-right: 30px;"><div class="single_staf">
+<div class="staf_thumb">
+ <img src="img/staf/3.png" alt="">
+</div>
+<h4>Dr. Sysla J Smith</h4>
+<p>Doctor</p>
+</div></div><div class="owl-item cloned active" style="width: 203.88px; margin-right: 30px;"><div class="single_staf">
+<div class="staf_thumb">
+<img src="img/staf/1.png" alt="">
+</div>
+<h4>Dr. Sysla J Smith</h4>
+<p>Doctor</p>
+</div></div><div class="owl-item cloned active" style="width: 203.88px; margin-right: 30px;"><div class="single_staf">
+<div class="staf_thumb">
+<img src="img/staf/2.png" alt="">
+</div>
+<h4>Dr. Sysla J Smith</h4>
+<p>Doctor</p>
+</div></div><div class="owl-item cloned" style="width: 203.88px; margin-right: 30px;"><div class="single_staf">
+<div class="staf_thumb">
+<img src="img/staf/3.png" alt="">
+</div>
+<h4>Dr. Sysla J Smith</h4>
+<p>Doctor</p>
+</div></div><div class="owl-item cloned" style="width: 203.88px; margin-right: 30px;"><div class="single_staf">
+<div class="staf_thumb">
+<img src="img/staf/4.png" alt="">
+</div>
+<h4>Dr. Sysla J Smith</h4>
+<p>Doctor</p>
+</div></div></div></div><div class="owl-nav"><button type="button" role="presentation" class="owl-prev"><i class="fa fa-angle-left"></i></button><button type="button" role="presentation" class="owl-next"><i class="fa fa-angle-right"></i></button></div><div class="owl-dots"><button role="button" class="owl-dot"><span></span></button><button role="button" class="owl-dot"><span></span></button><button role="button" class="owl-dot active"><span></span></button></div></div>
+</div>
+		
+		
+		</div>
+		</div>
+		</div>
+		</div>
+	</div>
+</div>
+
+
+ <!-- Modal --> 
+ <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document"> 
+  <div class="modal-content">
+   <div class="modal-header">
+    <h5 class="modal-title" id="exampleModalLabel">신규예약</h5>
+     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+     </button> 
+   </div> 
+  <div class="modal-body">
+	담당 의사 : <input type="text" id="doc">	
+	<br><br>	
+	예약 일자 : <input type="text" id="ckdate">
+	<br><br>
+	예약 시간 : <select id="hour">
+				<c:forEach var="rhour" begin="9" end="11" step="1">
+					<option>${rhour}</option>
+				</c:forEach>
+				<option disabled="disabled" style="color: lightgray">12</option>
+				<c:forEach var="rhour" begin="13" end="18" step="1">
+					<option>${rhour}</option>
+				</c:forEach>
+			</select>시
+			<select id="min">
+					<option>00</option>
+					<option>30</option>
+			</select>분
+	<br><br>	
+	환자 구분 : <input type="radio" name="sortpnt" value="ini">_초진&nbsp;
+	<input type="radio" name="sortpnt" value="re">_재진
+	<br><br>	
+	내원 사유 : 
+	<br>
+	<textarea cols="63" rows="4" style="resize: none;" onKeyUp="javascript:fnChkByte(this,'100')"></textarea>
+	<div style="float: right;"><span id="byteInfo">0</span>/100bytes</div>
+  </div> 
+  <div class="modal-footer">
+   <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    <button type="button" class="btn btn-primary">등록</button>
+  </div> 
+  </div> 
+  </div> 
+ </div>

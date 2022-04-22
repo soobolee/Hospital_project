@@ -1,0 +1,33 @@
+package kr.or.ddit.medical.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.ddit.medical.vo.MedicalVo;
+
+public interface MedicalMapper {
+
+	// 진료 등록
+	public int insertMedical(MedicalVo medicalVo);
+
+	// 진료 예약 목록
+	public List<MedicalVo> selectListMedicalYeyak(Map<String, Object> map);
+
+	// 진료 대기 목록
+	public List<MedicalVo> selectListMedicalDaegi(Map<String, Object> map);
+
+	// 진료 상세 조회
+	public MedicalVo selectDetailMedical(MedicalVo medicalVo);
+
+	// 증상 수정
+	public int updateSymptoms(MedicalVo medicalVo);
+
+	// 코멘트 저장
+	public int insertCmnt(MedicalVo medicalVo);
+
+	// 코멘트 수정
+	public int updateCmnt(MedicalVo medicalVo);
+
+	// 코멘트 삭제
+	public int deleteCmnt(MedicalVo medicalVo);
+}

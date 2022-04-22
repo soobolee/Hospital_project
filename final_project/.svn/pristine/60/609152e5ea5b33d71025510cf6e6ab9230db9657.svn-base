@@ -1,0 +1,30 @@
+package kr.or.ddit.stats.vo;
+
+import java.util.List;
+
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@ToString
+@Setter
+@Getter
+@Data
+public class StatsVO {
+	
+	// 매출 조회 시작일
+	private String startDate;
+	
+	// 매출 조회 종료일
+	private String endDate;
+	
+	// 금일매출
+	private String todayAmount;
+	
+	// 주간 환자 조회
+	private String mon,tue,wed,thu,fri,sat,sun;
+	
+	// 환자 수
+	private String pntCnt;
+}

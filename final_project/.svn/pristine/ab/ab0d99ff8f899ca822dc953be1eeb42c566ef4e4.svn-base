@@ -1,0 +1,8 @@
+package kr.or.ddit.ent.service;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public interface EntService {
+
+}

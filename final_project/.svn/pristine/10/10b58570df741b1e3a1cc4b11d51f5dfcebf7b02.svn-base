@@ -1,0 +1,34 @@
+package kr.or.ddit.patients.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.ddit.patients.vo.PatientsEmpVO;
+import kr.or.ddit.patients.vo.PatientsVO;
+
+public interface PatientsMapper {
+
+	//환자 목록
+	public List<PatientsVO> patientsList(Map<String, Object> map);
+	
+	//환자 상세 목록
+	public PatientsVO detail(String pntCd);
+	
+	//환자 등록
+	public int insertPatients(PatientsVO patientsVo);
+	
+	//환자 삭제
+	public int deletePatients(String pntCd);
+	
+	//환자 수정
+	public int updateInfo(PatientsVO patientsVo);
+	
+	//바이탈사인 리스트
+	public List<PatientsVO> vslist(String pntCd);
+	
+	//진료과목 리스트
+	public List<PatientsEmpVO>majorList();
+
+	//진료과목 별 의사 리스트
+	public List<PatientsEmpVO>doctorList(String major);
+}

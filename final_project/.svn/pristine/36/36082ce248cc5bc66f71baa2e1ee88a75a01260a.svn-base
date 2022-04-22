@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="kr.or.ddit.stats.mapper.StatsMapper">
+
+	<!-- 금일 매출 조회 -->
+	<select id="todayAmount" resultType="String">
+		SELECT SUM(RCV_AMT) AS TODAYAMOUNT
+		  FROM RCV
+		 WHERE RCV_DT BETWEEN TO_CHAR(SYSDATE, 'YYYY-MM-DD') AND TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+	</select>
+
+	<!-- 기간별 매출액 조회 -->
+	<select id="selectAmount" parameterType="statsVO" resultType="statsVO">
+		SELECT SUM(RCV_AMT) AS SUM
+		FROM RCV
+		WHERE RCV_DT BETWEEN #{startDate} AND #{endDate}
+	</select>
+	
+	<!-- 금일 환자 수 조회 -->
+	<select id="todayPatient" resultType="String">
+	SELECT COUNT(*) PNT_CNT
+      FROM RECEPT
+     WHERE SUBSTR(RCPT_DT,1,8)=TO_CHAR(SYSDATE,'YYYYMMDD')
+    </select>
+    
+   <!-- 최근 일주일간 환자 조회 -->
+   <select id="selectWeekPnt" resultType="statsVO">  
+		 SELECT
+		    (SELECT COUNT(RCPT_NO)
+		    FROM RECEPT
+		    WHERE SUBSTR(RCPT_DT,1,8) = TO_CHAR(sysdate, 'yyyymmdd')) AS today
+		    ,(SELECT COUNT(RCPT_NO)
+		    FROM RECEPT
+		    WHERE SUBSTR(RCPT_DT,1,8) = TO_CHAR(sysdate-1, 'yyyymmdd')) AS dayAgo1
+		    ,(SELECT COUNT(RCPT_NO)
+		    FROM RECEPT
+		    WHERE SUBSTR(RCPT_DT,1,8) = TO_CHAR(sysdate-2, 'yyyymmdd')) AS dayAgo2
+		    ,(SELECT COUNT(RCPT_NO)
+		    FROM RECEPT
+		    WHERE SUBSTR(RCPT_DT,1,8) = TO_CHAR(sysdate-3, 'yyyymmdd')) AS dayAgo3
+		    ,(SELECT COUNT(RCPT_NO)
+		    FROM RECEPT
+		    WHERE SUBSTR(RCPT_DT,1,8) = TO_CHAR(sysdate-4, 'yyyymmdd')) AS dayAgo4
+		    ,(SELECT COUNT(RCPT_NO)
+		    FROM RECEPT
+		    WHERE SUBSTR(RCPT_DT,1,8) = TO_CHAR(sysdate-5, 'yyyymmdd')) AS dayAgo5
+		    ,(SELECT COUNT(RCPT_NO)
+		    FROM RECEPT
+		    WHERE SUBSTR(RCPT_DT,1,8) = TO_CHAR(sysdate-6, 'yyyymmdd')) AS dayAgo6
+		FROM DUAL
+	</select>
+</mapper>

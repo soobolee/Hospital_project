@@ -1,0 +1,87 @@
+package kr.or.ddit.operation.service.Impl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.operation.mapper.OperationMapper;
+import kr.or.ddit.operation.service.OperationService;
+import kr.or.ddit.operation.vo.CalendarVO;
+import kr.or.ddit.operation.vo.ChartVO;
+import kr.or.ddit.operation.vo.OperDetailVO;
+import kr.or.ddit.operation.vo.OperationVO;
+import kr.or.ddit.operation.vo.PntVSVO;
+import kr.or.ddit.patients.vo.PatientsVO;
+
+@Service
+public class OperationServiceImpl implements OperationService {
+
+	@Autowired
+	OperationMapper operationMapper;
+
+	@Override
+	public List<OperationVO> selectOperList() {
+		
+		return operationMapper.selectOperList();
+	}
+
+	@Override
+	public ArrayList<CalendarVO> operCalendar() {
+
+		return operationMapper.operCalendar();
+	}
+
+	@Override
+	public ArrayList<ChartVO> operChart() {
+
+		return operationMapper.operChart();
+	}
+
+	@Override
+	public OperDetailVO operPntInfo(String operCd) {
+		
+		return operationMapper.operPntInfo(operCd);
+	}
+
+	@Override
+	public ArrayList<OperDetailVO> operPntVS(String pntCd) {
+		
+		return operationMapper.operPntVS(pntCd);
+	}
+
+	@Override
+	public ArrayList<OperDetailVO> operPntInj(String pntCd) {
+	
+		return operationMapper.operPntInj(pntCd);
+	}
+
+	@Override
+	public ArrayList<OperDetailVO> operIns(String pntCd) {
+		
+		return operationMapper.operIns(pntCd);
+	}
+
+	@Override
+	public ArrayList<OperDetailVO> operTeam(String operCd) {
+
+		return operationMapper.operTeam(operCd);
+	}
+
+	@Override
+	public OperDetailVO pntInfo(String pntCd) {
+		
+		return operationMapper.pntInfo(pntCd);
+	}
+
+	@Override
+	public ArrayList<PntVSVO> pntVS(String pntCd) {
+		
+		return operationMapper.pntVS(pntCd);
+	}
+	
+	
+	
+}

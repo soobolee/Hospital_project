@@ -1,0 +1,31 @@
+package kr.or.ddit.inspection.controller;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import kr.or.ddit.inspection.service.InspectionService;
+
+@Controller
+public class InspectionController {
+	private static final Logger logger = 
+			LoggerFactory.getLogger(InspectionController.class);
+	@Autowired
+	InspectionService inspectionService;
+	
+	@GetMapping("/inspection")
+	public String main(Model model) {
+		Gson gson = new GsonBuilder().create();
+		logger.info(gson.toJson(inspectionService.inspWaitList()));
+		
+		model.addAttribute("inspWaitList", gson.toJson(inspectionService.inspWaitList()));
+		
+		return "inspection/inspection";
+	}
+}

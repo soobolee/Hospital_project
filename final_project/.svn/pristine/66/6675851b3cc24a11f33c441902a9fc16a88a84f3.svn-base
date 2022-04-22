@@ -1,0 +1,35 @@
+package kr.or.ddit.operation.vo;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Repository
+@Getter
+@Setter
+@ToString
+public class OperationVO {
+
+	//OPERATION TABLE
+	private String operNo;
+	private String treatNo;
+	private String operRoom;
+	private Date operYmd;
+	private String operBgnHr;
+	private String operEndHr;
+	private String operNm;
+	private int operCo;
+	private String operIng;
+	//PATIENT TABLE
+	private String pntCd;
+	private String pntNm;
+	private String chrDr;
+	
+	//TREAT TABLE
+	
+}

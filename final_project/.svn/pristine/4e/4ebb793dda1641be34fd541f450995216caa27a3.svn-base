@@ -1,0 +1,146 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+
+<script type="text/javascript">
+	function fn_submit() {
+		document.getElementById('logoutFrm').submit();
+	}
+
+	$(function () {
+		$(".selectBox").on("change", function () {
+			var secCd = $('option:selected', this).attr('value');
+			var empCd = "${empVO.empCd}";
+			// var formData = new FormData();
+
+			// formData.append("empCd", empCd); 
+			// formData.append("secCd", secCd); 
+			// console.log(formData);
+			$.ajax({
+				url: "/main/secEmpList",
+				type: "post",
+				dataType: "json",
+				data: { "empCd": empCd, "secCd": secCd },
+				traditional: true,
+				success: function (res) {
+					console.log(res);
+					$("#secEmpListWrap").html(res);
+				},
+				error: function (jqXHR, textStatus, errorThrown) {
+					alert("오류가 발생했습니다.")
+				}
+			});
+		})
+	})
+</script>
+
+<div class="container-fluid no-gutters">
+	<div class="row">
+		<div class="col-lg-12 p-0">
+			<div class="header_iner d-flex justify-content-between align-items-center">
+				<div class="sidebar_icon d-lg-none">
+					<i class="ti-menu"></i>
+				</div>
+				<div class="serach_field-area">
+					<div class="search_inner">
+						<form action="#">
+							<div class="search_field">
+								<input type="text" placeholder="통합검색">
+							</div>
+							<button type="submit">
+								<img src="/resources/img/icon/icon_search.svg" alt="">
+							</button>
+						</form>
+					</div>
+				</div>
+
+				<!-- 로그인 하지 않은 경우 true -->
+				<sec:authorize access="isAnonymous()">
+					<div class="header_right d-flex justify-content-between align-items-center">
+						<div class="header_notification_warp d-flex align-items-center">
+							<div class="profile_info">
+								<img src="/resources/img/icon/bell.svg" alt="">
+								<div class="profile_info_iner">
+									<a href="/login">
+										<h5><i class="ti-user"></i>로그인 해주세요</h5>
+									</a>
+								</div>
+							</div>
+						</div>
+						<div class="profile_info">
+							<img src="/resources/img/client_img.png" alt="#">
+							<div class="profile_info_iner">
+								<a href="/login">
+									<h5><i class="ti-user"></i>로그인 해주세요</h5>
+								</a>
+							</div>
+						</div>
+					</div>
+				</sec:authorize>
+
+				<sec:authorize access="isAuthenticated()">
+					<sec:authentication property="principal.user.empPic" var="empPic" />
+					<sec:authentication property="principal.user.empCd" var="empCd" />
+					<sec:authentication property="principal.user.empNm" var="empNm" />
+					<sec:authentication property="principal.user.secCd" var="secCd" />
+					<sec:authentication property="principal.user.secNm" var="secNm" />
+					<div class="header_right d-flex justify-content-between align-items-center">
+						<div class="header_notification_warp d-flex align-items-center">
+							<li>
+								<div class="profile_info">
+									<a href="#"> <img src="/resources/img/icon/bell.svg" alt=""></a>
+									<div class="profile_info_iner">
+										<!-- 알림 영역 -->
+										<a href="#">
+											<h5><i class="ti-announcement"></i>새 알림</h5>
+										</a>
+										<a href="#">
+											<h5><i class="ti-announcement"></i>새 알림</h5>
+										</a>
+										<a href="#">
+											<h5><i class="ti-announcement"></i>새 알림</h5>
+										</a>
+									</div>
+								</div>
+							</li>
+						</div>
+						<div class="profile_info">
+							<img src="${empPic}" alt="#">
+							<div class="profile_info_iner">
+								<p>${secNm}</p>
+								<h5>${empNm}</h5>
+								<div class="profile_info_details">
+									<a href="/profile/profile/${empCd}">My Profile <i
+											class="ti-user"></i></a>
+									<!-- <a href="#">Settings<i class="ti-settings"></i></a> -->
+									<form id="logoutFrm" action="/logout" method="post">
+										<sec:csrfInput />
+										<a href="javascript:fn_submit()">Log Out <i
+												class="ti-shift-left"></i></a>
+									</form>
+								</div>
+								<div class="profile_info_details">
+									<h5>
+										<select class="selectBox">
+											<option value="${secCd}" selected>${secNm}</option>
+											<c:forEach var="op" items="${secSelectBox}">
+												<option value="${op.secCd}">${op.secNm}</option>
+											</c:forEach>
+										</select>
+									</h5>
+									<!-- 자기 팀 상태 -->
+									<div id="secEmpListWrap">
+										<c:forEach var="empInfo" items="${mySecEmpInfo}">
+											<p><i class="ti-user"></i> ${empInfo.empNm} - ${empInfo.cdNm}
+											</p>
+										</c:forEach>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</sec:authorize>
+			</div>
+		</div>
+	</div>
+</div>

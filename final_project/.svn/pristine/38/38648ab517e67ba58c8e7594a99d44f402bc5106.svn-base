@@ -1,0 +1,10 @@
+package kr.or.ddit.inspection.mapper;
+
+import java.util.List;
+
+import kr.or.ddit.patients.vo.PatientsVO;
+
+public interface InspectionMapper {
+	//검사 대기 환자 리스트
+	public List<PatientsVO> inspWaitList();
+}

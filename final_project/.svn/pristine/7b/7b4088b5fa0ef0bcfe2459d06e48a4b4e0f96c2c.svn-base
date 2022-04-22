@@ -1,0 +1,17 @@
+package kr.or.ddit.patients.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.ddit.patients.vo.PatientsVO;
+
+public interface PatientsMapper {
+
+	//환자 목록
+	public List<PatientsVO> patientsList(Map<String, Object> map);
+	
+	//환자 등록
+	public int insertPatients(PatientsVO patientsVo);
+	
+	
+}

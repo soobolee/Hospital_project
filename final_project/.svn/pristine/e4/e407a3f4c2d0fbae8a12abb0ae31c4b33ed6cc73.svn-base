@@ -1,0 +1,43 @@
+package kr.or.ddit.notice.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.notice.mapper.NoticeMapper;
+import kr.or.ddit.notice.service.NoticeService;
+import kr.or.ddit.notice.vo.NoticeVO;
+
+@Service
+public class NoticeServiceImpl implements NoticeService {
+	
+	@Autowired
+	NoticeMapper noticeMapper;
+	
+	// 전체 공지사항 조회
+	@Override
+	public List<NoticeVO> selectAll() {
+		return noticeMapper.selectAll();
+	}
+	
+	// 공지사항 상세조회
+	@Override
+	public NoticeVO selectOne(String ntcNo) {
+		
+		int result = noticeMapper.increaseHits(ntcNo);
+		
+		if(result > 0) {
+			return noticeMapper.selectOne(ntcNo);
+		}
+		return null;
+	}
+
+	// 공지사항 조회수 증가
+	@Override
+	public int increaseHits(String ntcNo) {
+		return noticeMapper.increaseHits(ntcNo);
+	}
+	
+	
+}

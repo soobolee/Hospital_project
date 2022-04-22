@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="kr.or.ddit.medical.mapper.MedicalMapper">
+	
+	 <!-- 진료목록 -->
+	 <select id="selectListMedical" parameterType="hashMap" resultType="medicalVo">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.selectListMedical */
+		SELECT
+			PNT_CD /* 환자코드 */
+			, PNT_NM /* 이름 */
+			, SUBSTR(PRNO, 1, 6) AS PRNO /* 생년월일 */
+			, EXTRACT(YEAR FROM SYSDATE) - (DECODE(SUBSTR(PRNO, 8, 1), '1', '19', '2', '19', '20') || SUBSTR(PRNO, 1, 2)) +1 AS AGE /* 나이 */
+			, ADDR /* 주소 */
+			, STATE /* 상태 */
+	  	FROM PATIENT
+	  	WHERE STATE IN('예약','대기')
+        ORDER BY PNT_CD DESC
+	 </select>
+	 
+</mapper>

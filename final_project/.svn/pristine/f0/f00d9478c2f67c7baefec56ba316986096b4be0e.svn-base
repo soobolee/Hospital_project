@@ -1,0 +1,313 @@
+package kr.or.ddit.medical.controller;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.ddit.emp.service.EmpService;
+import kr.or.ddit.emp.vo.EmpVO;
+import kr.or.ddit.medical.service.MedicalService;
+import kr.or.ddit.medical.vo.MedicalVo;
+import kr.or.ddit.security.CustomUser;
+import kr.or.ddit.utils.ApiResultVo;
+
+/**
+ * @FileName : MedicalController.java
+ * @Project : final_project
+ * @Date : 2022. 3. 13.
+ * @작성자 : LJH
+ * @변경이력 :
+ * @프로그램 설명 : 진료 컨트롤러
+ */
+@Controller
+@RequestMapping("/medical")
+public class MedicalController {
+
+	private static final Logger log = LoggerFactory.getLogger(MedicalController.class);
+
+	@Autowired
+	MedicalService medicalService;
+
+	@Autowired
+	EmpService empService;
+
+	@GetMapping("/main")
+	public String medicalList(Locale locale, Model model, Authentication auth) {
+
+		log.info(" :::: 진료 메인페이지 호출 :::: ");
+
+		CustomUser user = (CustomUser) auth.getPrincipal();
+		EmpVO empVO = user.getUser();
+
+		model.addAttribute("loginUser", empVO);
+		model.addAttribute("secSelectBox", empService.secSelectBox());
+
+		// WEB-INF/views/*/*.jsp 패턴으로 정의
+		return "medical/main";
+	}
+
+	@GetMapping("/treat")
+	public String medicalTreat(Locale locale, Model model, Authentication auth) {
+
+		log.info(" :::: 진료하기 페이지 호출 :::: ");
+
+		// WEB-INF/views/*/*.jsp 패턴으로 정의
+		return "medical/treat";
+	}
+
+	@GetMapping("/treat/record")
+	public String medicalTreatRecord(Locale locale, Model model, Authentication auth) {
+
+		log.info(" :::: 진료기록 페이지 호출 :::: ");
+
+		// WEB-INF/views/*/*.jsp 패턴으로 정의
+		return "medical/treat_record";
+	}
+
+	/**
+	 * @Method Name : selectListMedicalYeyak
+	 * @작성일 : 2022. 3. 13.
+	 * @작성자 : LJH
+	 * @변경이력 :
+	 * @Method 설명 : 진료예약목록을 조회한다. json Type
+	 * @param param
+	 * @return resp
+	 * @throws Exception
+	 */
+	@GetMapping("/selectListMedicalYeyak")
+	@ResponseBody
+	public ApiResultVo<List<MedicalVo>> selectListMedicalYeyak(@RequestParam Map<String, Object> paramMap) {
+
+		log.info("selectListMedicalYeyak 호출");
+
+		ApiResultVo<List<MedicalVo>> resp = new ApiResultVo<>();
+
+		try {
+			// 에러가 발생시 처리한다. 응답 response에 오류를 알린다.
+			resp.setResponse(medicalService.selectListMedicalYeyak(paramMap));
+		} catch (Exception e) {
+			e.printStackTrace();
+			resp.setMessage("error");
+			resp.setCheck(false);
+		}
+		return resp;
+
+	}
+
+	/**
+	 * @Method Name : selectListMedicalDaegi
+	 * @작성일 : 2022. 3. 13.
+	 * @작성자 : LJH
+	 * @변경이력 :
+	 * @Method 설명 : 진료대기목록을 조회한다. json Type
+	 * @param param
+	 * @return resp
+	 * @throws Exception
+	 */
+	@GetMapping("/selectListMedicalDaegi")
+	@ResponseBody
+	public ApiResultVo<List<MedicalVo>> selectListMedicalDaegi(@RequestParam Map<String, Object> paramMap) {
+
+		log.info("selectListMedicalDaegi 호출");
+
+		ApiResultVo<List<MedicalVo>> resp = new ApiResultVo<>();
+
+		try {
+			// 에러가 발생시 처리한다. 응답 response에 오류를 알린다.
+			resp.setResponse(medicalService.selectListMedicalDaegi(paramMap));
+		} catch (Exception e) {
+			e.printStackTrace();
+			resp.setMessage("error");
+			resp.setCheck(false);
+		}
+		return resp;
+
+	}
+
+	/**
+	 * @Method Name : selectDetailMedical
+	 * @작성일 : 2022. 3. 16.
+	 * @작성자 : LJH
+	 * @변경이력 :
+	 * @Method 설명 : 진료상세조회
+	 * @param vo
+	 * @return
+	 * @throws Exception
+	 */
+	@PostMapping("/selectDetailMedical")
+	@ResponseBody
+	public ApiResultVo<MedicalVo> selectDetailMedical(MedicalVo vo) throws Exception {
+
+		log.info("selectDetailMedical : " + vo.toString());
+
+		ApiResultVo<MedicalVo> resp = new ApiResultVo<>();
+
+		try {
+			// 에러가 발생시 처리한다. 응답 response에 오류를 알린다.
+			resp.setResponse(medicalService.selectDetailMedical(vo));
+		} catch (Exception e) {
+			e.printStackTrace();
+			resp.setMessage("error");
+			resp.setCheck(false);
+		}
+		return resp;
+
+	}
+
+	/**
+	 * @Method Name : updateSymptoms
+	 * @작성일 : 2022. 3. 13.
+	 * @작성자 : LJH
+	 * @변경이력 :
+	 * @Method 설명 : 증상을 수정한다.
+	 * @param vo
+	 * @return resp
+	 * @throws Exception
+	 */
+	@PostMapping("/updateSymptoms")
+	@ResponseBody
+	public ApiResultVo<MedicalVo> updateSymptoms(MedicalVo vo) throws Exception {
+
+		log.info("updateSymptoms : " + vo.toString());
+
+		ApiResultVo<MedicalVo> resp = new ApiResultVo<>();
+
+		try {
+			// 에러가 발생시 처리한다. 응답 response에 오류를 알린다.
+			int result = medicalService.updateSymptoms(vo);
+			if (result > 0) {
+				log.info("증상 수정완료");
+				resp.setResponse(vo);
+			} else {
+				resp.setCheck(false);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			resp.setMessage("error");
+			resp.setCheck(false);
+		}
+		return resp;
+
+	}
+
+	/**
+	 * @Method Name : insertCmnt
+	 * @작성일 : 2022. 3. 16.
+	 * @작성자 : LJH
+	 * @변경이력 :
+	 * @Method 설명 : 코멘트 저장
+	 * @param vo
+	 * @return
+	 * @throws Exception
+	 */
+	@PostMapping("/insertCmnt")
+	@ResponseBody
+	public ApiResultVo<MedicalVo> insertCmnt(MedicalVo vo) throws Exception {
+
+		log.info("insertCmnt : " + vo.toString());
+
+		ApiResultVo<MedicalVo> resp = new ApiResultVo<>();
+
+		try {
+			// 에러가 발생시 처리한다. 응답 response에 오류를 알린다.
+			int result = medicalService.insertCmnt(vo);
+			if (result > 0) {
+				log.info("코멘트 저장 완료");
+				resp.setResponse(vo);
+			} else {
+				resp.setCheck(false);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			resp.setMessage("error");
+			resp.setCheck(false);
+		}
+		return resp;
+
+	}
+
+	/**
+	 * @Method Name : deleteCmnt
+	 * @작성일 : 2022. 3. 16.
+	 * @작성자 : LJH
+	 * @변경이력 :
+	 * @Method 설명 : 코멘트삭제
+	 * @param vo
+	 * @return
+	 * @throws Exception
+	 */
+	@PostMapping("/deleteCmnt")
+	@ResponseBody
+	public ApiResultVo<MedicalVo> deleteCmnt(MedicalVo vo) throws Exception {
+
+		log.info("deleteCmnt : " + vo.toString());
+
+		ApiResultVo<MedicalVo> resp = new ApiResultVo<>();
+
+		try {
+			// 에러가 발생시 처리한다. 응답 response에 오류를 알린다.
+			int result = medicalService.deleteCmnt(vo);
+			if (result > 0) {
+				log.info("코멘트 삭제 완료");
+				resp.setResponse(vo);
+			} else {
+				resp.setCheck(false);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			resp.setMessage("error");
+			resp.setCheck(false);
+		}
+		return resp;
+
+	}
+
+	/**
+	 * @Method Name : updateCmnt
+	 * @작성일 : 2022. 3. 16.
+	 * @작성자 : LJH
+	 * @변경이력 :
+	 * @Method 설명 : 코멘트 수정
+	 * @param vo
+	 * @return
+	 * @throws Exception
+	 */
+	@PostMapping("/updateCmnt")
+	@ResponseBody
+	public ApiResultVo<MedicalVo> updateCmnt(MedicalVo vo) throws Exception {
+
+		log.info("updateCmnt : " + vo.toString());
+
+		ApiResultVo<MedicalVo> resp = new ApiResultVo<>();
+
+		try {
+			// 에러가 발생시 처리한다. 응답 response에 오류를 알린다.
+			int result = medicalService.updateCmnt(vo);
+			if (result > 0) {
+				log.info("코멘트 수정 완료");
+				resp.setResponse(vo);
+			} else {
+				resp.setCheck(false);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			resp.setMessage("error");
+			resp.setCheck(false);
+		}
+		return resp;
+
+	}
+
+}

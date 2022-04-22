@@ -1,0 +1,71 @@
+package kr.or.ddit.ent.controller;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.ddit.ent.service.EntService;
+import kr.or.ddit.ent.vo.EntVO;
+import kr.or.ddit.ent.vo.WardVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@RequestMapping("/ent")
+@Controller
+public class EntController {
+	
+	private static final Logger logger = LoggerFactory.getLogger(EntController.class);
+	
+	@Autowired 
+	EntService entService;
+	
+	@GetMapping("/main")
+	private String entMain(Model model) {
+		List<EntVO> entVO = entService.entWardPntList();
+		List<EntVO> waitEtVO = entService.entPatientList();
+		List<WardVO> wardVOList = entService.getWard();
+		
+		model.addAttribute("waitPnt", waitEtVO);
+		model.addAttribute("entVO", entVO);
+		model.addAttribute("wardVOList", wardVOList);   // resultMap 을 이용하여 병동1 : 호실N 의 관계로 가져옴
+		
+		return "ent/entHome";
+	}
+	
+	
+	@PostMapping("/pntModal")
+	@ResponseBody
+	private EntVO pntModal(Model model, @RequestParam String pntCd) {
+		EntVO waitPntDetail = entService.patientDetail(pntCd);
+		
+		return waitPntDetail;
+	}
+	
+	@ResponseBody
+	@GetMapping("/getWard")
+	private List<WardVO> getWard(){
+		return entService.getWard();
+	}
+	
+	
+	// 관리자 병동 추가 버튼 -------------
+	@GetMapping("/adminBed")
+	private String adminBed(Model model) {
+		List<WardVO> wardVOList = entService.getWard();
+		
+		model.addAttribute("wardVOList", wardVOList);
+		return "ent/adminBed";
+	}
+	
+	
+	
+}

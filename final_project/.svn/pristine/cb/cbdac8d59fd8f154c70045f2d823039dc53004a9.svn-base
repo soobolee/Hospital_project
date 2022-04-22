@@ -1,0 +1,37 @@
+package kr.or.ddit.operation.mapper;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import kr.or.ddit.operation.vo.CalendarVO;
+import kr.or.ddit.operation.vo.ChartVO;
+import kr.or.ddit.operation.vo.OperDetailVO;
+import kr.or.ddit.operation.vo.OperationVO;
+import kr.or.ddit.operation.vo.PntVSVO;
+import kr.or.ddit.patients.vo.PatientsVO;
+
+public interface OperationMapper {
+	
+	public List<OperationVO> selectOperList();
+	
+	public ArrayList<CalendarVO> operCalendar();
+	
+	public ArrayList<ChartVO> operChart();
+	
+	public OperDetailVO operPntInfo(String operCd);
+	
+	public ArrayList<OperDetailVO> operPntVS(String pntCd);
+	
+	public ArrayList<OperDetailVO> operPntInj(String pntCd);
+	
+	public ArrayList<OperDetailVO> operIns(String pntCd);
+	
+	public ArrayList<OperDetailVO> operTeam(String operCd);
+	
+	public OperDetailVO pntInfo(String pntCd);
+	
+	public ArrayList<PntVSVO> pntVS(String pntCd);
+	
+	
+	
+}

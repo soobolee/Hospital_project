@@ -1,0 +1,28 @@
+package kr.or.ddit.medical.vo;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
+/*
+ * @RequiredArgsConstructor : 추가 작업을 필요로 하는 필드에 대한 생성자를 생성한다.
+ * @AllArgsConstructor : 클래스에 존재하는 모든 필드에 대한 생성자를 자동으로 생성해 준다.
+ * @Data : @Getter, @Setter, @ToString을 한 번에 설정한다.
+ */
+
+@RequiredArgsConstructor
+@AllArgsConstructor
+@Data
+public class MedicalVitalSignVo {
+
+	private String pntCd; 		// 환자 코드
+	private String vs_dt; 		// 바이탈사인 등록일
+	private String vsBpMax; // 최대혈압
+	private String vsBpMin; // 최소혈압
+	private String vsTmp; 		// 체온
+	private String vsBs; 			// 혈압 XX / XX
+	private String height; 		// 신장
+	private String weight; 		// 체중
+	private String age; 			// 나이
+	private String sex; 			// 성별
+}

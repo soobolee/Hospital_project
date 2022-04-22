@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+	<mapper namespace="kr.or.ddit.ent.mapper.EntMapper">
+	
+	<select id="entPatientList" resultType="entVO">
+		SELECT P.PNT_NM, E.ENT_DT, E.LEV_DT, P.CHR_DR, E.ENT_WARD_CD, EW.ROOM, P.TELNO
+		  FROM ENT E, PATIENT P, ENT_WARD EW
+		 WHERE E.PNT_CD = P.PNT_CD
+		   AND E.ENT_WARD_CD = EW.ENT_WARD_CD
+	</select>
+</mapper>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="kr.or.ddit.notice.mapper.NoticeMapper">
+
+	<!-- 전체 공지사항 조회 -->
+	<select id="selectAll" resultType="noticeVo">
+		 SELECT NTC_NO,TITLE,CONTENT,WRITER,PRIV_BOUNDS,DEL_YN,FRST_REG_YMD,LAST_MDFCN_YMD, HITS 
+		   FROM NOTICE
+	</select>	
+	
+	<!-- 개별 공지사항 조회 -->
+	<select id="selectOne" parameterType="string" resultType="noticeVo">
+		SELECT NTC_NO,TITLE,CONTENT,WRITER,PRIV_BOUNDS, DEL_YN,FRST_REG_YMD,LAST_MDFCN_YMD, HITS
+		   FROM NOTICE 
+           WHERE NTC_NO = #{ntcNo}
+	</select>	   
+	
+	<!-- 공지사항 조회 시 조회수 증가 -->
+	<update id="increaseHits" parameterType="string">
+		UPDATE NOTICE SET HITS = HITS+1 WHERE NTC_NO = #{ntcNo}
+	</update>		   
+</mapper>

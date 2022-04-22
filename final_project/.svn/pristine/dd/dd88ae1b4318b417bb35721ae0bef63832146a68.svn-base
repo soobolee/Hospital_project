@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="kr.or.ddit.medical.mapper.MedicalMapper">
+	
+	 <!-- 진료예약목록 -->
+	 <select id="selectListMedicalYeyak" parameterType="hashMap" resultType="medicalVo">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.selectListMedicalYeyak */
+		SELECT PNT.PNT_NM AS pntNm
+			, SUBSTR(PNT.PNT_PRNO, 1, 6) AS PNT_PRNO
+		    , TO_DATE(SUBSTR(RSV.RSVT_DT, 1, 8)) AS RSVT_REG_DT
+		    , SUBSTR(RSV.RSVT_DT, 9, 2) || ':' || SUBSTR(RSV.RSVT_DT, 11, 2) AS RSVT_REG_TIME
+		    , PNT.STATE_CD AS STATE_CD
+		    , RSV.RSVT_NO AS RSVT_NO
+		FROM PATIENT PNT, RESERVATION RSV
+		<where>
+			AND PNT.PNT_CD = RSV.PNT_CD	/* 환자 예약(환자코드) */
+			AND SUBSTR(RSV.RSVT_DT, 1, 8) = TO_CHAR(SYSDATE,'YYYYMMDD') /* 오늘날짜  */
+			ORDER BY RSV.RSVT_DT		/* 예약시각 순으로 정렬 */
+		</where>
+	</select>
+
+	<!-- 진료대기목록 -->
+	<select id="selectListMedicalDaegi" parameterType="hashMap" resultType="medicalVo">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.selectListMedicalDaegi */
+		SELECT PNT.PNT_NM AS PNT_NM
+			 , SUBSTR(PNT.PNT_PRNO, 1, 6) AS PNT_PRNO
+		     , RSV.RSVT_REG_DT AS RSVT_REG_DT
+		     , TO_DATE(SUBSTR(RCT.RCPT_DT, 1, 8)) AS RSVT_REG_DT
+		     , CASE PNT.STATE_CD WHEN 'PS4' THEN ' 우선대기 '
+		       ELSE SUBSTR(RCT.RCPT_DT, 9, 2) || ':' || SUBSTR(RCT.RCPT_DT, 11, 2)
+		       END AS RSVT_REG_TIME
+		     , PNT.STATE_CD AS STATE_CD
+		     , RSV.RSVT_NO AS RSVT_NO
+		     , CASE PNT.STATE_CD WHEN 'PS4' THEN 1
+		       ELSE 2
+		       END AS FIRST
+		FROM PATIENT PNT, RESERVATION RSV, RECEPT RCT
+		<where>
+			AND PNT.PNT_CD = RSV.PNT_CD		/* 환자 예약(환자코드) */
+			AND RSV.RSVT_NO = RCT.RSVT_NO	/* 예약 접수(예약번호) */
+			AND SUBSTR(RCT.RCPT_DT, 1, 8) = TO_CHAR(SYSDATE,'YYYYMMDD') /* 오늘날짜  */
+			ORDER BY FIRST, RCT.RCPT_DT		/* 우선대기, 접수시각 순으로 정렬 */
+		</where>
+	 </select>
+
+	 <!-- 진료상세조회 -->
+	 <select id="selectDetailMedical" parameterType="medicalVo" resultType="medicalVo">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.selectDetailMedical */
+		SELECT PNT.PNT_NM AS PNT_NM
+			 , CASE WHEN SUBSTR(PNT.PNT_PRNO, 8, 1) IN('1', '3') THEN '남'
+			   ELSE '여'
+			   END AS SEX
+		   	 , SUBSTR(PNT.PNT_PRNO, 1, 6) AS PNT_PRNO
+		   	 , CASE WHEN SUBSTR(PNT_PRNO, 8, 1) IN('1', '2') THEN EXTRACT(YEAR FROM SYSDATE) - (1900 + SUBSTR(PNT_PRNO, 1, 2)) +1
+		   	   ELSE EXTRACT(YEAR FROM SYSDATE) - (2000 + SUBSTR(PNT_PRNO, 1, 2)) +1
+		   	   END AS AGE
+		     , PNT.PNT_ADDR AS ADDR
+		     , PNT.PNT_HP AS PNT_HP
+		     , RSV.SYMPTOMS AS SYMPTOMS
+		     , (
+		     	SELECT CMT.CMNT_CONT
+		    	FROM CMNT CMT
+		    	WHERE PNT.PNT_CD = CMT.PNT_CD) AS CMNT_CONT
+		     , (
+		     	SELECT CMT.CMNT_NO
+		    	FROM CMNT CMT
+		    	WHERE PNT.PNT_CD = CMT.PNT_CD) AS CMNT_NO
+    		 , (
+		    	SELECT CMT.CMNT_DT
+		    	FROM CMNT CMT
+		    	WHERE PNT.PNT_CD = CMT.PNT_CD) AS CMNT_DT
+    		 , (
+		    	SELECT CMT.EMP_CD
+		    	FROM CMNT CMT
+		    	WHERE PNT.PNT_CD = CMT.PNT_CD) AS EMP_CD
+		  	 , RSV.RSVT_NO
+		  	 , PNT.PNT_CD
+		FROM PATIENT PNT, RESERVATION RSV
+		<where>
+			AND PNT.PNT_CD = RSV.PNT_CD /* 환자예약(환자코드) */
+			AND RSV.RSVT_NO = #{rsvtNo} /* 예약번호 */
+		</where>
+	</select>
+	 
+	 <!--코멘트 저장  -->
+	<insert id="insertCmnt" parameterType="medicalVo">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.insertCmnt */
+		INSERT INTO CMNT(
+			CMNT_NO
+			, PNT_CD
+			, EMP_CD
+			, CMNT_CONT
+			, CMNT_DT
+		) VALUES (
+			(SELECT NVL(MAX(CMNT_NO), 0) +1 FROM CMNT)
+       		, #{pntCd}
+      		, #{empCd}
+      		, #{cmntCont}
+      		, SYSDATE 
+      	)
+	</insert>
+
+	<!-- 증상 수정  -->
+	<update id="updateSymptoms" parameterType="medicalVo">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.updateSymptoms */
+		UPDATE RESERVATION
+	   	SET SYMPTOMS = #{symptoms}
+	 	WHERE RSVT_NO = #{rsvtNo}
+	</update>
+
+	<!-- 코멘트 수정  -->
+	<update id="updateCmnt" parameterType="medicalVo">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.updateCmnt */
+		UPDATE CMNT
+	   	SET CMNT_CONT = #{cmntCont}
+	 	WHERE CMNT_NO = #{cmntNo}
+	</update>
+
+	<!-- 코멘트 삭제  -->
+	<delete id="deleteCmnt" parameterType="medicalVo">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.deleteCmnt */
+		DELETE FROM CMNT
+		WHERE CMNT_NO = #{cmntNo}
+	</delete>
+
+	<!-- 사진 저장  -->
+	<insert id="insertCam" parameterType="medicalVo">
+		INSERT INTO CHART_FILE(
+			FILE_NO
+			, TREAT_CD
+			, BASE64IMG
+			, FILE_CLS
+			, FILE_NM
+			, FILE_REG_DT
+			, EMP_CD
+		) VALUES (
+			(SELECT NVL(MAX(FILE_NO), 0) +1 FROM CHART_FILE)
+       		, 'TRT00001'
+       		, #{base64img}
+			, '환자사진'
+			, '환자사진_'||(SELECT NVL(MAX(FILE_NO), 0) +1 FROM CHART_FILE)
+			, TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS')
+      		, #{empCd}
+      	)
+	</insert>
+	
+	<select id="selectListCam" resultType="medicalVo" parameterType="hashMap">
+		SELECT FILE_NO
+			 , FILE_NM
+			 , BASE64IMG 
+		FROM CHART_FILE
+		WHERE FILE_CLS = '환자사진'
+		AND BASE64IMG IS NOT NULL
+        ORDER BY FILE_NO DESC
+	</select>
+
+	<!-- 진단 및 초방 검색 -->
+	<select id="selectListJindanSch" resultType="medicalSchVo" parameterType="hashMap">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.selectListJindanSch 진단 및 처방 검색(질병코드, 병명 / 퀵오더 / 처방) */		
+		<if test='type == "1"'>
+		SELECT DIS_CD
+			 , DIS_NM
+	  	FROM DIS
+		WHERE DIS_NM LIKE '%' || #{schTxt} || '%'
+		</if>
+		
+		<if test='type == "2"'>
+		SELECT DISTINCT QO_CD
+					  , QO_NM
+	  	FROM QUICK_ORDER
+	 	WHERE QO_NM LIKE '%' || #{schTxt} || '%' 
+		</if>
+
+		<if test='type == "3"'>
+		SELECT DR.DRUG_CD AS DRUG_CD
+			 , DR.DRUG_NM AS DRUG_NM
+		FROM DRUG DR, CM_CD CM
+	 	<where>
+		 	AND TO_CHAR(DR.CLS_CD) = CM.CM_CD
+		 	AND
+		 	(
+		 		DR.DRUG_NM LIKE '%' || #{schTxt} || '%'
+		 		OR CM.CD_NM LIKE '%' || #{schTxt} || '%'
+		 	)
+	   	</where>
+		</if>
+
+	</select>
+
+	<!-- 수가코드 검색 -->
+	<select id="selectListSoogiSch" resultType="medicalSchVo" parameterType="hashMap">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.selectListSoogiSch 검사명으로 검색(수가코드, 검사명, 비용) */	
+		SELECT SG_CD	/* 수가코드 */
+			 , SG_NM	/* 수가명칭 */
+			 , TO_CHAR(SG_AMT, 'fm999,999,999,999') AS SG_AMT	/* 수가금액 vo에서 인트형을 못받아서 문자형으로 변경 */
+		FROM SG_CD
+		<where>
+			AND J_CLS IN('02', '03')	/* 장구분 검사 촬영 */
+			AND SG_NM LIKE '%' || #{schTxt} || '%'	/* 검색어 */
+		</where>
+	</select>
+	 
+</mapper>

@@ -1,0 +1,16 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+
+
+<ul class="nav nav-tabs" style="padding-left:3%;">
+   <li class="nav-item">
+     <a class="nav-link active stats" aria-current="page" href="/stats/patient">수납</a>    
+   </li>
+   <li class="nav-item">
+      <a class="nav-link active stats" aria-current="page" href="/stats/sales">수납내역</a>
+   </li>
+</ul>
+여긴 수납 테이블입니다. ajax로 띄울까? foreach로 띄울까 참 고민이 되네유
+수납 에선 수납 진행 -> 각 항목별 검사요약 및 금액을 띄우고 -> 결제 진행
+수납 내역 -> 진료별 / 환자별 수납내역 띄우기 인터넷에 수납내역 검색 하고 가장 이쁜거 따라 만들기

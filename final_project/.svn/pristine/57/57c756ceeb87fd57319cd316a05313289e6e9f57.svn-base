@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="kr.or.ddit.reservation.mapper.ReservationMapper">
+	<!-- 신규 예약 -->
+	<insert id="">
+		INSERT INTO RESERVATION(RSVT_NO, PNT_CD
+                                , EMP_CD, SYMPTOMS
+                                , RSVT_DT, RSVT_REG_DT
+                               )
+        VALUES('RVT'||LPAD(RESERVATION_SEQ.NEXTVAL,5,0),'#{pntCd}'
+        		,'EMP00001','감기'
+        		,'2022-03-16 13:30',TO_CHAR(SYSDATE));
+	</insert>
+	<!-- 특정 환자 예약정보 -->
+	<select id="reservlist" parameterType="String" resultType="reservationVo">
+		SELECT R.RSVT_NO, R.PNT_CD
+               , R.EMP_CD, R.SYMPTOMS
+               , R.RSVT_DT, R.RSVT_REG_DT
+               , P.PNT_NM
+               , E.EMP_NM
+        FROM PATIENT P, RESERVATION R, EMP E
+        WHERE P.PNT_CD=R.PNT_CD
+        AND R.EMP_CD=E.EMP_CD
+        AND R.PNT_CD=#{pntCd}
+        ORDER BY R.RSVT_DT
+	</select>
+	
+</mapper>

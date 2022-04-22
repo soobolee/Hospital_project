@@ -1,0 +1,66 @@
+package kr.or.ddit.medical.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.medical.mapper.MedicalMapper;
+import kr.or.ddit.medical.service.MedicalService;
+import kr.or.ddit.medical.vo.MedicalVo;
+
+@Service
+public class MedicalServiceImpl implements MedicalService {
+
+	@Autowired
+	MedicalMapper medicalMapper;
+
+	// 진료등록
+	@Override
+	public int insertMedical(MedicalVo medicalVo) {
+		return medicalMapper.insertMedical(medicalVo);
+	}
+
+	// 진료예약목록
+	@Override
+	public List<MedicalVo> selectListMedicalYeyak(Map<String, Object> map) {
+		return medicalMapper.selectListMedicalYeyak(map);
+	}
+
+	// 진료대기목록
+	@Override
+	public List<MedicalVo> selectListMedicalDaegi(Map<String, Object> map) {
+		return medicalMapper.selectListMedicalDaegi(map);
+	}
+
+	// 진료상세조회
+	@Override
+	public MedicalVo selectDetailMedical(MedicalVo medicalVo) {
+		return medicalMapper.selectDetailMedical(medicalVo);
+	}
+
+	// 증상 수정
+	@Override
+	public int updateSymptoms(MedicalVo medicalVo) {
+		return medicalMapper.updateSymptoms(medicalVo);
+	}
+
+	// 코멘트 저장
+	@Override
+	public int insertCmnt(MedicalVo medicalVo) {
+		return medicalMapper.insertCmnt(medicalVo);
+	}
+
+	// 코멘트 수정
+	@Override
+	public int updateCmnt(MedicalVo medicalVo) {
+		return medicalMapper.updateCmnt(medicalVo);
+	}
+
+	// 코멘트 삭제
+	@Override
+	public int deleteCmnt(MedicalVo medicalVo) {
+		return medicalMapper.deleteCmnt(medicalVo);
+	}
+}

@@ -1,0 +1,29 @@
+package kr.or.ddit.ent.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.ddit.ent.vo.EntVO;
+import kr.or.ddit.ent.vo.WardVO;
+
+public interface EntMapper {
+	
+	public List<EntVO> entPatientList();
+	
+	public EntVO patientDetail(String pntCd);
+	
+	public List<EntVO> entWardPntList();
+	
+	public int updatePntEnt(String pntCd);
+	
+	public List<WardVO> getWard();
+	
+	public List<EntVO> getRoom(String roomCls);
+	
+	public int saveRoom(Map<String, Object> map);
+	
+	public int updateEnt(String pntCd);
+	
+	public int insertEnt(Map<String, Object> map);
+	
+}

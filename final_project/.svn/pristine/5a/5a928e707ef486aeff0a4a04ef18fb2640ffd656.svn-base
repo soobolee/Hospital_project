@@ -1,0 +1,17 @@
+package kr.or.ddit.medical.vo;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+@AllArgsConstructor
+@Data
+public class MedicalVo {
+	private String pntCd; // 환자코드
+	private String pntNm; // 환자이름
+	private String telno; // 환자전화번호
+	private String prno; // 환자주민번호
+	private String addr; // 주소
+	private String state; // 환자상태
+}

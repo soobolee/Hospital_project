@@ -1,0 +1,24 @@
+
+	function sendKeyword2(){
+		var keyword = $("#keyword").val();
+		location.href = "/receive/receiveMemoryHome?color=1&keyword=" + keyword;
+	}
+	
+	function sendKeyword1(){
+		alert("dsfsdf");
+		var keyword = $("#keyword").val();
+		location.href = "/receive/receiveHome?color=0&keyword=" + keyword;
+	}
+
+	
+	$(document).on("click", "#receiveingTr", function(){
+		var pntCd = $(this).attr("pntCd");
+		
+		window.open("/receive/receiveing?pntCd=" + pntCd, "receiveing", "width=1000, height=700, resizable=no, left=450px, top=150px");
+	})
+
+	$(document).on("click", "#receiveedTr", function(){
+		var pntCd = $(this).attr("pntCd");
+		
+		window.open("/receive/receiveed?pntCd=" + pntCd, "receiveing", "width=1000, height=700, resizable=no, left=450px, top=150px");
+	})

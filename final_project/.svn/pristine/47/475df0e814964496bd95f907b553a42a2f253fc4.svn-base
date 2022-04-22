@@ -1,0 +1,105 @@
+package kr.or.ddit.reservation.controller;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.ddit.patients.vo.PatientsEmpVO;
+import kr.or.ddit.patients.vo.PatientsVO;
+import kr.or.ddit.reservation.service.ReservationService;
+import kr.or.ddit.reservation.vo.ReservationVO;
+
+@Controller
+@RequestMapping("/reservation")
+public class ReservationController {
+
+	@Autowired
+	ReservationService reservationservice;
+	
+	private static final Logger logger = LoggerFactory.getLogger(ReservationController.class);
+
+	//예약페이지로 이동
+	@GetMapping("/main")
+	public String reservlist(Model model, @ModelAttribute("patientsVo")PatientsVO patientsVo) {
+		List<PatientsEmpVO> majorlist = this.reservationservice.majorList();
+		//logger.info("majorList : "+ majorlist.toString());
+
+		model.addAttribute("majorlist", majorlist);
+		return"reservation/main";
+	}
+	
+	//진료과목 별 의사 출력
+	@PostMapping("/doctorList")
+	@ResponseBody
+	public List<PatientsEmpVO> doctorList(Model model, @RequestParam String major){
+		List<PatientsEmpVO> doctorlist = this.reservationservice.doctorList(major);
+		//logger.info(major);
+		//logger.info("doctorlist:" + doctorlist.toString());
+		return doctorlist;
+	}
+	//진료과목 별 의사 출력
+	@PostMapping("/resdoctorList")
+	public String resdoctorList(Model model, @RequestParam String major){
+		List<ReservationVO> resdoctorList = this.reservationservice.resdoctorList(major);
+		//logger.info(major);
+		//logger.info("resdoctorList:" + resdoctorList.toString());
+		model.addAttribute("resdoctorList",resdoctorList);
+		return "/reservation/doctorInfo";
+	}
+		
+	//진료부서 별 예약목록 출력
+	@GetMapping("/majorresList")
+	@ResponseBody
+	public List<ReservationVO> majorresList(Model model, @RequestParam String major){
+		List<ReservationVO> majorresList = this.reservationservice.majorresList(major);
+		logger.info("majorr : " + major);
+		logger.info("majorresList : " + majorresList);
+		//model.addAttribute("majorresList", majorresList);
+		return majorresList;
+	}
+	
+	//전체 예약목록 출력
+	@GetMapping("/allList")
+	@ResponseBody
+	public List<ReservationVO> allList(Model model){
+		List<ReservationVO> allList = this.reservationservice.allList();
+		//logger.info("allList" + allList.toString());
+		return allList;
+	}
+	
+	//의사별 예약목록 출력
+	@PostMapping("/docList")
+	@ResponseBody
+	public List<ReservationVO> docList(Model model, @RequestParam(value="empCd") String empCd){
+		List<ReservationVO> docList = this.reservationservice.docList(empCd);
+		logger.info("docList" + docList.toString());
+		return docList;
+	}
+	
+	//신규예약
+	@PostMapping("/addreservation")
+	public String addreservation(Model model, @ModelAttribute("reservationVo")ReservationVO reservationVo){
+		//logger.info("reservationVo" + reservationVo);
+		int result = this.reservationservice.addreservation(reservationVo);
+		return "redirect:/reservation/main";
+	}
+	
+	//환자 목록
+	@GetMapping("/patientsList")
+	@ResponseBody
+	public List<PatientsVO> patientsList(Model model) {
+		List<PatientsVO> list = this.reservationservice.patientsList();
+		//logger.info("patientsList" + list.toString());
+		return list;
+	}
+}

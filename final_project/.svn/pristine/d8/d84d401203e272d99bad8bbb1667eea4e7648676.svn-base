@@ -1,0 +1,40 @@
+package kr.or.ddit.patients.controller;
+
+
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import kr.or.ddit.patients.service.PatientsService;
+import kr.or.ddit.patients.vo.PatientsVO;
+
+@Controller
+@RequestMapping("/patients")
+public class PatientsController {
+	
+	private static final Logger logger = LoggerFactory.getLogger(PatientsController.class);
+	
+	@Autowired
+	PatientsService patientsService;
+	
+	@GetMapping("/patientsList")
+	public String patientsList(Model model, @RequestParam Map<String, Object> map){
+		
+		
+		List<PatientsVO> list = this.patientsService.patientsList(map);
+		logger.info(list.toString());
+		
+			model.addAttribute("list", list);	
+		logger.info("gender" + list.get(0).getPrno().charAt(7));
+		
+		return "patients/patientsHome";
+	}
+}

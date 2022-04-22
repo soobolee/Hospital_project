@@ -1,0 +1,12 @@
+package kr.or.ddit.ent.service;
+
+import java.util.List;
+
+import kr.or.ddit.ent.vo.EntVO;
+
+
+public interface EntService {
+	
+	public List<EntVO> entPatientList();
+	
+}

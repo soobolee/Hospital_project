@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="kr.or.ddit.medical.mapper.MedicalMapper">
+	
+	 <!-- 진료예약목록 -->
+	 <select id="selectListMedicalYeyak" parameterType="hashMap" resultType="medicalVo">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.selectListMedicalYeyak */
+		SELECT PNT.PNT_NM AS pntNm
+			, SUBSTR(PNT.PNT_PRNO, 1, 6) AS PNT_PRNO
+		    , TO_DATE(SUBSTR(RSV.RSVT_DT, 1, 8)) AS RSVT_REG_DT
+		    , SUBSTR(RSV.RSVT_DT, 9, 2) || ':' || SUBSTR(RSV.RSVT_DT, 11, 2) AS RSVT_REG_TIME
+		    , PNT.STATE_CD AS STATE_CD
+		    , RSV.RSVT_NO AS RSVT_NO
+		FROM PATIENT PNT, RESERVATION RSV
+		<where>
+			AND PNT.PNT_CD = RSV.PNT_CD	/* 환자 예약(환자코드) */
+			AND SUBSTR(RSV.RSVT_DT, 1, 8) = TO_CHAR(SYSDATE,'YYYYMMDD') /* 오늘날짜  */
+			AND RSV.RSVT_NO NOT IN(SELECT RSVT_NO FROM RECEPT) /* 접수하면 안보이게 */
+			ORDER BY RSV.RSVT_DT		/* 예약시각 순으로 정렬 */
+		</where>
+	</select>
+
+	<!-- 진료대기목록 -->
+	<select id="selectListMedicalDaegi" parameterType="hashMap" resultType="medicalVo">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.selectListMedicalDaegi */
+		SELECT PNT.PNT_NM AS PNT_NM
+			 , SUBSTR(PNT.PNT_PRNO, 1, 6) AS PNT_PRNO
+		     , RSV.RSVT_REG_DT AS RSVT_REG_DT
+		     , TO_DATE(SUBSTR(RCT.RCPT_DT, 1, 8)) AS RSVT_REG_DT
+		     , CASE PNT.STATE_CD WHEN 'PS4' THEN ' 우선대기 '
+		       ELSE SUBSTR(RCT.RCPT_DT, 9, 2) || ':' || SUBSTR(RCT.RCPT_DT, 11, 2)
+		       END AS RSVT_REG_TIME
+		     , PNT.STATE_CD AS STATE_CD
+		     , RSV.RSVT_NO AS RSVT_NO
+		     , CASE PNT.STATE_CD WHEN 'PS4' THEN 1
+		       ELSE 2
+		       END AS FIRST
+		FROM PATIENT PNT, RESERVATION RSV, RECEPT RCT
+		<where>
+			AND PNT.PNT_CD = RSV.PNT_CD		/* 환자 예약(환자코드) */
+			AND RSV.RSVT_NO = RCT.RSVT_NO	/* 예약 접수(예약번호) */
+			AND SUBSTR(RCT.RCPT_DT, 1, 8) = TO_CHAR(SYSDATE,'YYYYMMDD') /* 오늘날짜  */
+			ORDER BY FIRST, RCT.RCPT_DT		/* 우선대기, 접수시각 순으로 정렬 */
+		</where>
+	 </select>
+
+	 <!-- 진료상세조회 -->
+	 <select id="selectDetailMedical" parameterType="medicalVo" resultType="medicalVo">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.selectDetailMedical */
+		SELECT PNT.PNT_NM AS PNT_NM
+			 , CASE WHEN SUBSTR(PNT.PNT_PRNO, 8, 1) IN('1', '3') THEN '남'
+			   ELSE '여'
+			   END AS SEX
+		   	 , SUBSTR(PNT.PNT_PRNO, 1, 6) AS PNT_PRNO
+		   	 , CASE WHEN SUBSTR(PNT_PRNO, 8, 1) IN('1', '2') THEN EXTRACT(YEAR FROM SYSDATE) - (1900 + SUBSTR(PNT_PRNO, 1, 2)) +1
+		   	   ELSE EXTRACT(YEAR FROM SYSDATE) - (2000 + SUBSTR(PNT_PRNO, 1, 2)) +1
+		   	   END AS AGE
+		     , PNT.PNT_ADDR AS ADDR
+		     , PNT.PNT_HP AS PNT_HP
+		     , RSV.SYMPTOMS AS SYMPTOMS
+		     , (
+		     	SELECT CMT.CMNT_CONT
+		    	FROM CMNT CMT
+		    	WHERE PNT.PNT_CD = CMT.PNT_CD) AS CMNT_CONT
+		     , (
+		     	SELECT CMT.CMNT_NO
+		    	FROM CMNT CMT
+		    	WHERE PNT.PNT_CD = CMT.PNT_CD) AS CMNT_NO
+    		 , (
+		    	SELECT CMT.CMNT_DT
+		    	FROM CMNT CMT
+		    	WHERE PNT.PNT_CD = CMT.PNT_CD) AS CMNT_DT
+    		 , (
+		    	SELECT CMT.EMP_CD
+		    	FROM CMNT CMT
+		    	WHERE PNT.PNT_CD = CMT.PNT_CD) AS EMP_CD
+		  	 , RSV.RSVT_NO
+		  	 , PNT.PNT_CD
+		FROM PATIENT PNT, RESERVATION RSV
+		<where>
+			AND PNT.PNT_CD = RSV.PNT_CD /* 환자예약(환자코드) */
+			AND RSV.RSVT_NO = #{rsvtNo} /* 예약번호 */
+		</where>
+	</select>
+	 
+	 <!--코멘트 저장  -->
+	<insert id="insertCmnt" parameterType="medicalVo">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.insertCmnt */
+		INSERT INTO CMNT(
+			CMNT_NO
+			, PNT_CD
+			, EMP_CD
+			, CMNT_CONT
+			, CMNT_DT
+		) VALUES (
+			(SELECT NVL(MAX(CMNT_NO), 0) +1 FROM CMNT)
+       		, #{pntCd}
+      		, #{empCd}
+      		, #{cmntCont}
+      		, SYSDATE 
+      	)
+	</insert>
+
+	<!-- 증상 수정  -->
+	<update id="updateSymptoms" parameterType="medicalVo">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.updateSymptoms */
+		UPDATE RESERVATION
+	   	SET SYMPTOMS = #{symptoms}
+	 	WHERE RSVT_NO = #{rsvtNo}
+	</update>
+
+	<!-- 코멘트 수정  -->
+	<update id="updateCmnt" parameterType="medicalVo">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.updateCmnt */
+		UPDATE CMNT
+	   	SET CMNT_CONT = #{cmntCont}
+	 	WHERE CMNT_NO = #{cmntNo}
+	</update>
+
+	<!-- 코멘트 삭제  -->
+	<delete id="deleteCmnt" parameterType="medicalVo">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.deleteCmnt */
+		DELETE FROM CMNT
+		WHERE CMNT_NO = #{cmntNo}
+	</delete>
+
+	<!-- 사진 저장  -->
+	<insert id="insertCam" parameterType="medicalVo">
+		INSERT INTO CHART_FILE(
+			FILE_NO
+			, TREAT_CD
+			, BASE64IMG
+			, FILE_CLS
+			, FILE_NM
+			, FILE_REG_DT
+			, EMP_CD
+		) VALUES (
+			(SELECT NVL(MAX(FILE_NO), 0) +1 FROM CHART_FILE)
+       		, 'TRT00001'
+       		, #{base64img}
+			, '환자사진'
+			, '환자사진_'||(SELECT NVL(MAX(FILE_NO), 0) +1 FROM CHART_FILE)
+			, TO_CHAR(SYSDATE,'YYYYMMDDHH24MISS')
+      		, #{empCd}
+      	)
+	</insert>
+	
+	<select id="selectListCam" resultType="medicalVo" parameterType="hashMap">
+		SELECT FILE_NO
+			 , FILE_NM
+			 , BASE64IMG 
+		FROM CHART_FILE
+		WHERE FILE_CLS = '환자사진'
+		AND BASE64IMG IS NOT NULL
+        ORDER BY FILE_NO DESC
+	</select>
+
+	<!-- 진단 및 초방 검색 -->
+	<select id="selectListJindanSch" resultType="medicalSchVo" parameterType="hashMap">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.selectListJindanSch 진단 및 처방 검색(질병코드, 병명 / 퀵오더 / 처방) */		
+		<if test='type == "1"'>
+		SELECT DIS_CD
+			 , DIS_NM
+	  	FROM DIS
+		WHERE DIS_NM LIKE '%' || #{schTxt} || '%'
+		</if>
+		
+		<if test='type == "2"'>
+		SELECT DISTINCT QO_CD
+					  , QO_NM
+	  	FROM QUICK_ORDER
+	 	WHERE QO_NM LIKE '%' || #{schTxt} || '%' 
+		</if>
+
+		<if test='type == "3"'>
+		SELECT DR.DRUG_CD AS DRUG_CD
+			 , DR.DRUG_NM AS DRUG_NM
+		FROM DRUG DR, CM_CD CM
+	 	<where>
+		 	AND TO_CHAR(DR.CLS_CD) = CM.CM_CD
+		 	AND
+		 	(
+		 		DR.DRUG_NM LIKE '%' || #{schTxt} || '%'
+		 		OR CM.CD_NM LIKE '%' || #{schTxt} || '%'
+		 	)
+	   	</where>
+		</if>
+
+	</select>
+
+	<!-- 수가코드 검색 -->
+	<select id="selectListSoogiSch" resultType="medicalSchVo" parameterType="hashMap">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.selectListSoogiSch 검사명으로 검색(수가코드, 검사명, 비용) */	
+		SELECT SG_CD	/* 수가코드 */
+			 , SG_NM	/* 수가명칭 */
+			 , TO_CHAR(SG_AMT, 'fm999,999,999,999') AS SG_AMT	/* 수가금액 vo에서 인트형을 못받아서 문자형으로 변경 */
+		FROM SG_CD
+		<where>
+			AND J_CLS IN('02', '03')	/* 장구분 검사 촬영 */
+			AND SG_NM LIKE '%' || #{schTxt} || '%'	/* 검색어 */
+		</where>
+	</select>
+<!-- 
+나이, 성별, 신장, 체중은 그냥 디비에서 값 가져오면 되고 혈당, 체온, 혈압만 입력합니다. 
+혈압은 최대/최소의 형태이고 측정완료시 해당 값이 저장되고 
+측정완료 -> 다시측정으로 버튼 변경, 다시측정시 다시 처음으로 돌아가게 만들면 됩니다.
+ -->
+	<!-- 바이탈사인 저장  -->
+	<insert id="insertVitalSign" parameterType="medicalVitalSignVo">
+		/* kr.or.ddit.medical.vo.MedicalMapper.insertVitalSign 	바이탈사인 입력하기(혈당, 체온, 혈압) */
+ 		<![CDATA[
+		INSERT INTO VS(
+			PNT_CD
+			, VS_DT
+			, VS_BP_MAX
+			, VS_BP_MIN
+			, VS_TMP
+			, VS_BS
+		)
+		VALUES (
+			'PNT00001' /* 환자코드 */
+		   	, TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') 				/* 측정일시 */
+		   	, TO_NUMBER(REGEXP_SUBSTR('120/80', '[^/]+')) 			/* 최대혈압 */
+		   	, TO_NUMBER(REGEXP_SUBSTR('120/80', '[^/]+', 1, 2)) 	/* 최소혈압 */
+		   	, '36' /* 체온 */
+		  	, 300 /* 혈당 */
+		)
+		]]>
+	</insert>	 
+
+	<!-- 해당 환자의 모든 바이탈사인 기록 조회 -->
+	<select id="selectListVitalSignRecord" resultType="medicalVitalSignVo" parameterType="hashMap">
+		/* kr.or.ddit.medical.vo.MedicalMapper.selectListVitalSignRecord 해당 환자의 모든 바이탈사인 기록 조회*/
+		SELECT 
+			CASE WHEN SUBSTR(P.PNT_PRNO, 8, 1) IN('1', '2') THEN EXTRACT(YEAR FROM SYSDATE) - (1900 + SUBSTR(P.PNT_PRNO, 1, 2)) +1
+	       	ELSE EXTRACT(YEAR FROM SYSDATE) - (2000 + SUBSTR(P.PNT_PRNO, 1, 2)) +1
+	      	END AS AGE /*나이*/
+	    	, CASE WHEN SUBSTR(P.PNT_PRNO, 8, 1) IN('1', '3') THEN '남' ELSE '여' END AS SEX /*성별*/
+	    	, P.HEIGHT AS HEIGHT /*신장*/
+	    	, P.WEIGHT AS WEIGHT /*체중*/
+	    	, V.VS_BS AS VS_BS /*혈당*/
+	    	, V.VS_TMP AS VS_TMP /*체온*/
+	    	, V.VS_BP_MAX AS VS_BP_MAX  /*최대혈압*/
+	    	, V.VS_BP_MIN AS VS_BP_MAX  /*최소혈압*/
+	    	, V.VS_DT AS VS_DT /*측정일시*/
+		FROM PATIENT P, VS V
+	 	WHERE 1 = 1
+	   	AND P.PNT_CD = V.PNT_CD 				/* 환자 바이탈사인(환자코드) */
+	   	AND P.PNT_CD = 'PNT00001'
+	</select>
+
+	<!-- 해당 환자의 모든 바이탈사인 기록 조회 -->
+	<select id="selectVitalSignDetail" resultType="medicalVitalSignVo" parameterType="hashMap">
+		/* kr.or.ddit.medical.vo.MedicalMapper.selectVitalSignDetail 환자정보, 가장 최근 바이탈사인 받아오기(나이, 성별, 신장, 체중, 혈당, 체온, 혈압)*/
+		<![CDATA[
+		SELECT 
+			TA.T1 AS AGE
+			, TA.T2 AS SEX
+			, TA.T3 AS HEIGHT
+			, TA.T4 AS WEIGHT
+			, TA.T5 AS VS_BS
+			, TA.T6 AS VS_TMP
+			, TA.T7 AS VS_BP
+		FROM 
+			(
+				SELECT 
+					CASE WHEN SUBSTR(P.PNT_PRNO, 8, 1) IN('1', '2') THEN EXTRACT(YEAR FROM SYSDATE) - (1900 + SUBSTR(P.PNT_PRNO, 1, 2)) +1
+		          	ELSE EXTRACT(YEAR FROM SYSDATE) - (2000 + SUBSTR(P.PNT_PRNO, 1, 2)) +1
+		            END AS T1 /* 나이 */
+		          	, CASE WHEN SUBSTR(P.PNT_PRNO, 8, 1) IN('1', '3') THEN '남' ELSE '여' END AS T2 /* 성별 */
+		         	, P.HEIGHT AS T3 /* 신장 */
+		          	, P.WEIGHT AS T4 /* 체중 */
+		          	, V.VS_BS AS T5 /* 혈당 */
+		          	, V.VS_TMP AS T6 /* 체온 */
+		          	, V.VS_BP_MAX || '/' || V.VS_BP_MIN AS T7 /* 혈압 */
+		          	, V.VS_DT AS DT /* 측정일시 */
+		        	FROM PATIENT P, VS V
+		       		WHERE 1 = 1
+		         	AND P.PNT_CD = V.PNT_CD 	/* 환자 - 바이탈사인(환자코드) */
+		         	AND P.PNT_CD = 'PNT00001'
+		       	ORDER BY V.VS_DT DESC) TA 		/* 최근순으로 정렬 */
+	 	WHERE ROWNUM <= 1 						/* 가장 최근 기록만 조회 */
+	 	]]>
+	</select>	 	 
+</mapper>

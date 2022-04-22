@@ -1,0 +1,14 @@
+package kr.or.ddit.medical.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.ddit.medical.vo.MedicalVo;
+
+public interface MedicalMapper {
+	// 진료등록
+	public int insertMedical(MedicalVo medicalVo);
+
+	// 진료목록
+	public List<MedicalVo> selectListMedical(Map<String, Object> map);
+}

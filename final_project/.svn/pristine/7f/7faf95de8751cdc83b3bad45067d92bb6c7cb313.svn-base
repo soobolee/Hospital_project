@@ -1,0 +1,95 @@
+package kr.or.ddit.stats.controller;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import kr.or.ddit.emp.vo.EmpVO;
+import kr.or.ddit.sec.service.impl.SecService;
+import kr.or.ddit.sec.vo.SecVO;
+import kr.or.ddit.stats.service.impl.StatsService;
+import kr.or.ddit.stats.vo.StatsVO;
+
+/**
+ * @FileName : StatsController.java
+ * @Project : final_project
+ * @Date : 2022. 3. 31.
+ * @작성자 : LSW
+ * @변경이력 :
+ * @프로그램 설명 : 통계 컨트롤러
+ */
+@Controller
+@RequestMapping("/stats")
+public class StatsController {
+
+	private static final Logger log = LoggerFactory.getLogger(StatsController.class);
+
+	@Autowired
+	StatsService statsService;
+	
+	/**
+	 * @param 
+	 * @return List<statsVO>
+	 * 통계 홈화면 출력
+	 */
+	
+	@GetMapping("/home")
+	public String statsMain(Model model){
+		
+		StatsVO statsVO = new StatsVO();
+		statsVO.setTodayAmount(statsService.todayAmount());
+		statsVO.setPntCnt(statsService.todayPatient());
+		log.info("statsVO!!!!!!!!!!!!!!!!!!" + statsVO);
+		
+		model.addAttribute("statsVO", statsVO);
+		
+		return "stats/home";
+	}
+	
+	@GetMapping("/patient")
+	public String statsPatient(Model model){
+		
+		StatsVO statsVO = new StatsVO();
+		statsVO.setTodayAmount(statsService.todayAmount());
+		statsVO.setPntCnt(statsService.todayPatient());
+		log.info("statsVO!!!!!!!!!!!!!!!!!!" + statsVO);
+		
+		model.addAttribute("statsVO", statsVO);
+		
+		return "stats/patient";
+	}
+	
+	@ResponseBody
+	@GetMapping("/jsonData")
+	public String jsonData(@RequestParam Map<String, String> map) {
+//		Gson gson = new GsonBuilder().create();
+//		String data = gson.toJson()
+		String jsonData = "{'cols':[{'id' :'', 'label' : '상품명', 'pattern':'','type':'string'},{'id' :'', 'label' : '금액', 'pattern':'','type':'number'}],'rows':[{'c':[{'v':'딸기'},{'v':88000}]},{'c':[{'v':'레몬'},{'v':16500}]},{'c':[{'v':'포도'},{'v':15000}]}]}";
+		JsonObject json = new JsonParser().parse(jsonData).getAsJsonObject();
+		return json.toString();
+	}
+		
+}	

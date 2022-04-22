@@ -1,0 +1,14 @@
+package kr.or.ddit.ent.mapper;
+
+import java.util.List;
+
+import kr.or.ddit.ent.vo.EntVO;
+
+public interface EntMapper {
+	
+	public List<EntVO> entPatientList();
+	
+	public EntVO patientDetail(String pntCd);
+	
+	
+}

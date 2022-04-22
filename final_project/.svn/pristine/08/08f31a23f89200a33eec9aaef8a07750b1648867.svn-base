@@ -1,0 +1,144 @@
+package kr.or.ddit.ent.service.serviceImpl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.ent.mapper.EntMapper;
+import kr.or.ddit.ent.service.EntService;
+import kr.or.ddit.ent.vo.EntVO;
+import kr.or.ddit.ent.vo.WardVO;
+
+@Service
+public class EntServiceImpl implements EntService {
+	
+	@Autowired
+	EntMapper entMapper;
+	
+	@Override
+	public List<EntVO> entPatientList(String keyword) throws Exception {
+		return entMapper.entPatientList(keyword);
+	}
+
+	@Override
+	public int entPatientCount() throws Exception {
+		return entMapper.entPatientCount();
+	}
+	
+	@Override
+	public EntVO patientDetail(String pntCd) throws Exception {
+		return entMapper.patientDetail(pntCd);
+	}
+
+	@Override
+	public List<EntVO> entWardPntList(String keyword)  throws Exception{
+		return entMapper.entWardPntList(keyword);
+	}
+
+	@Override
+	public int entWardPntCount() throws Exception {
+		return entMapper.entWardPntCount();
+	}
+
+	
+	@Override
+	public int updatePntEnt(String pntCd) throws Exception {
+		return entMapper.updatePntEnt(pntCd);
+	}
+
+	@Override
+	public List<WardVO> getWard() throws Exception {
+		return entMapper.getWard();
+	}
+
+	@Override
+	public List<EntVO> getRoom(String roomCls) throws Exception {
+		return entMapper.getRoom(roomCls);
+	}
+
+	@Override
+	public int saveRoom(Map<String, Object> map) throws Exception {
+		return entMapper.saveRoom(map);
+	}
+
+	public int updateEnts(Map<String, Object> map) throws Exception{
+		int cnt = 0;
+		 cnt += entMapper.updateEnt((String)map.get("pntCd"));
+		 cnt += entMapper.updatePntToEnt((String)map.get("pntCd"));
+		 entMapper.insertEnt(map);
+		 cnt++;
+		 return cnt;
+	}
+	
+	@Override
+	public int updateEnt(String pntCd)  throws Exception{
+		return entMapper.updateEnt(pntCd);
+	}
+
+	@Override
+	public int insertEnt(Map<String, Object> map)  throws Exception{
+		return entMapper.insertEnt(map);
+	}
+
+	@Override
+	public EntVO getEntDetail(String pntCd) throws Exception {
+		return entMapper.getEntDetail(pntCd);
+	}
+
+	@Override
+	public List<EntVO> getCareNote(String entCd)  throws Exception{
+		return entMapper.getCareNote(entCd);
+	}
+
+	@Override
+	public List<EntVO> getVital(String pntCd) throws Exception {
+		return entMapper.getVital(pntCd);
+	}
+
+	@Override
+	public int insertVital(Map<String, Object> entVO)  throws Exception{
+		return entMapper.insertVital(entVO);
+	}
+
+	@Override
+	public int insertCareNote(Map<String, Object> entVO) throws Exception {
+		return entMapper.insertCareNote(entVO);
+	}
+
+	@Override
+	public List<EntVO> getEntWorker(Map<String, Object> map)  throws Exception{
+		return entMapper.getEntWorker(map);
+	}
+
+	@Override
+	public int getEntWorkerCount(String keyword)  throws Exception{
+		return entMapper.getEntWorkerCount(keyword);
+	}
+
+	@Override
+	public EntVO getEntEmpDetail(String empCd)  throws Exception{
+		return entMapper.getEntEmpDetail(empCd);
+	}
+
+	@Override
+	public int getNoPagingWorkerCount()  throws Exception{
+		return entMapper.getNoPagingWorkerCount();
+	}
+
+	@Override
+	public int updatePntToEnt(String pntCd)  throws Exception{
+		return entMapper.updatePntToEnt(pntCd);
+	}
+
+	@Override
+	public List<EntVO> getDietList()  throws Exception{
+		return entMapper.getDietList();
+	}
+
+
+
+
+	
+}

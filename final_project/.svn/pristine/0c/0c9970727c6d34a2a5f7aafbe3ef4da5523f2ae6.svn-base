@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.inspection.mapper.InspectionMapper">
+	<select id="inspWaitList" resultType="patientsVo">
+		SELECT A.PNT_CD
+		      ,A.PNT_NM
+		      ,A.PNT_PRNO
+		      ,EXTRACT(YEAR FROM SYSDATE) - (DECODE(SUBSTR(A.PNT_PRNO, 8, 1), '1', '19', '2', '19', '20') || SUBSTR(A.PNT_PRNO, 1, 2)) +1 AS AGE
+		      ,A.PNT_SEX
+		      ,A.PNT_ADDR
+		      ,A.PNT_HP
+		      ,A.CHR_DR
+		      ,A.HEIGHT
+		      ,A.WEIGHT
+		      ,A.SMK_YN
+		      ,A.DRK_YN
+		      ,A.PRGNT_YN
+		      ,A.STATE_CD
+		      ,A.PRTCR_NM
+		      ,A.PRTCR_TEL
+		      ,A.PNT_REG_DT
+		      ,A.LOC_CD
+		      ,A.ENT_YN
+		      ,B.NOT_DT
+		      ,C.TREAT_CD
+		      ,D.SEC_NM
+		      ,ROWNUM
+		 FROM PATIENT A, (SELECT DISTINCT PNT_CD
+		                        ,NOT_DT
+		                    FROM NOTIFICATION
+		                   WHERE SUBSTR(NOT_DT,1,8)=TO_CHAR(SYSDATE,'YYYYMMDD')
+		                   ORDER BY NOT_DT) B, (SELECT ROWNUM RNUM
+		                                              ,PNT_CD
+		                                              ,TREAT_CD
+		                                          FROM TREAT
+		                                         WHERE SUBSTR(TREAT_DT,1,8)=TO_CHAR(SYSDATE,'YYYYMMDD')) C,
+		      SEC D                                   
+		WHERE A.PNT_CD=B.PNT_CD
+		  AND A.PNT_CD=C.PNT_CD
+		  AND A.LOC_CD=D.SEC_CD
+		  AND A.STATE_CD='PS8'
+		  AND C.RNUM = 1
+	</select>
+</mapper>

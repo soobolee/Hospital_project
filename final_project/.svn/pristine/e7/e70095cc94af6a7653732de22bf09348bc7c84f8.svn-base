@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+	<mapper namespace="kr.or.ddit.ent.mapper.EntMapper">
+	
+	<!-- 입원 대기 중인 환자 리스트 출력 쿼리  입원대기 코드 8-->
+	<select id="entPatientList" resultType="entVO">
+		 SELECT P.PNT_NM,
+		        PS.STATUS_NM, 
+		        P.PNT_CD,
+		        CASE substr(P.PRNO, 8, 1) WHEN '1' THEN '남' WHEN '2' THEN '여' WHEN '3' THEN '남' ELSE '여' END AS PRNO,
+		         P.TELNO,
+		         P.CHR_DR
+		   FROM PATIENT P INNER JOIN PATIENTSTATUS PS
+		     ON (P.STATUS_CD = PS.STATUS_CD)
+		    AND P.STATUS_CD = 8
+	</select>
+	<!-- 입원 중인 환자 리스트 출력 쿼리 입원대기 코드 9 -->
+	<select id="entWardPntList" resultType="entVO">
+        SELECT E.ENT_NO, E.TREAT_NO, P.PNT_NM,P.PNT_CD, P.TELNO, EW.WARD,EW.ROOM,EW.BED,EW.NOPE,EW.DAY_AMT,EW.BEDX, EW.BEDY, E.ENT_DT, TO_CHAR(E.LEV_DT, 'yyyy-mm-dd') AS levDt, E.ENT_CO, E.MEAL_CO, E.TOTAL_AMT
+          FROM ENT E, ENT_WARD EW, PATIENT P
+         WHERE E.ENT_WARD_CD = EW.ENT_WARD_CD
+           AND E.LEV_DT >= TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+           AND P.PNT_CD = E.PNT_CD
+	</select>
+	
+	<!-- 환자의 상세 정보를 가져오는 쿼리 -->
+	<select id="patientDetail" resultType="entVO" parameterType="String">
+		SELECT PNT_CD, PNT_NM, PRNO, TELNO, ADDR, CHR_DR, HEIGHT, WEIGHT, SMK_YN, DRK_YN, PRTCR_NM, PRTCR_TEL, STATUS_CD
+		  FROM PATIENT
+		 WHERE PNT_CD = #{pntCd}
+	</select>
+	
+</mapper>

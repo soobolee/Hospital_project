@@ -1,0 +1,16 @@
+package kr.or.ddit.medical.service;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.ddit.medical.vo.MedicalVo;
+
+public interface MedicalService {
+
+	// 진료등록
+	public int insertMedical(MedicalVo medicalVo);
+
+	// 진료목록
+	public List<MedicalVo> selectListMedical(Map<String, Object> map);
+
+}

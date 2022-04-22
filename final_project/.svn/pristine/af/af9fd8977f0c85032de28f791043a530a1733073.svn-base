@@ -1,0 +1,13 @@
+package kr.or.ddit.login.mapper;
+
+import java.util.Map;
+
+import kr.or.ddit.login.vo.LoginVO;
+
+public interface LoginMapper {
+	public LoginVO read(String username);
+	
+	public int findPw(Map<String, String> map);
+	
+	public int firstLogin(Map<String, String> map);
+}

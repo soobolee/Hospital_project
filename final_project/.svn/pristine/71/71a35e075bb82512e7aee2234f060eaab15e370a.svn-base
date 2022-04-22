@@ -1,0 +1,23 @@
+package kr.or.ddit.reservation.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.reservation.mapper.ReservationMapper;
+import kr.or.ddit.reservation.service.ReservationService;
+import kr.or.ddit.reservation.vo.ReservationVO;
+
+@Service
+public class ReservationServiceImpl implements ReservationService {
+
+	@Autowired
+	ReservationMapper reservationMapper;
+	
+	@Override
+	public List<ReservationVO> reservlist(String pntCd) {
+		return reservationMapper.reservlist(pntCd);
+	}
+
+}

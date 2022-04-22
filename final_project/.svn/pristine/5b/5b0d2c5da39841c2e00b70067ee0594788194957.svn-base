@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="kr.or.ddit.patients.mapper.PatientsMapper">
+
+	<!-- 환자 수정 -->
+	<update id="">
+		
+	</update>
+
+	<!-- 환자 등록 -->
+	<insert id="insertPatients" parameterType="patientsVO">
+		INSERT INTO PATIENT(PNT_CD, PNT_NM
+                            , PNT_PRNO, PNT_SEX
+                            , PNT_ADDR, PNT_HP
+                            , CHR_DR, HEIGHT
+                            , WEIGHT, SMK_YN
+                            , DRK_YN, PRGNT_YN
+                            , STATE_CD, PRTCR_NM
+                            , PRTCR_TEL, PNT_REG_DT
+                            , DEL_YN)
+        VALUES('PNT'||LPAD(PATIENT_SEQ.NEXTVAL,5,0),${pntNm}
+                           ,${pntPrno},${pntSex}
+                           ,${pntAddr},${pntHp}
+                           ,${chrDr},${height},
+                           ${weight},${smkYn},${drkYn},${prgntYn}
+                           ,${stateCd},${prtcrNm}
+                           ,${prtcrTel},TO_CHAR(SYSDATE,'YY-MM-DD')
+                           ,${delYn})
+	</insert>
+	
+	<!-- 환자 목록 -->
+	<select id="patientsList" resultType="patientsVo">
+		SELECT PNT_CD, PNT_NM
+               , PNT_PRNO, PNT_SEX
+               , PNT_ADDR, PNT_HP
+               , CHR_DR, HEIGHT
+               , WEIGHT, SMK_YN
+               , DRK_YN, PRGNT_YN
+               , STATE_CD, PRTCR_NM
+               , PRTCR_TEL, PNT_REG_DT
+               , DEL_YN, ENABLED
+		FROM PATIENT
+	</select>
+	
+	<!-- 환자 상세보기 -->
+	<select id="detail" parameterType="String" resultType="patientsVo">
+	
+        SELECT P.PNT_CD, P.PNT_NM
+			   , P.PNT_PRNO, P.PNT_SEX
+			   , P.PNT_ADDR, P.PNT_HP , P.CHR_DR
+			   , P.HEIGHT, P.WEIGHT
+			   , CASE WHEN P.SMK_YN = 0 THEN 'N'
+                      WHEN P.SMK_YN = 1 THEN 'Y'  END AS SMOKING
+               , CASE WHEN P.DRK_YN = 0 THEN 'N'
+                      WHEN P.DRK_YN = 1 THEN 'Y' END AS DRINKING
+               , CASE WHEN P.PRGNT_YN = 0 THEN 'N'
+                      WHEN P.PRGNT_YN = 1 THEN 'Y' END AS PREGNANCY
+               , P.STATE_CD, P.PRTCR_NM
+			   , P.PRTCR_TEL, P.PNT_REG_DT
+			   , P.DEL_YN, P.ENABLED
+               ,(SELECT TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE), TO_DATE(T.BYEAR,'YYYYMMDD')) / 12) 
+                 FROM (SELECT CASE 
+                                 WHEN SUBSTR(PNT_PRNO,8,1)='1' OR SUBSTR(PNT_PRNO,8,1)='2' THEN TO_NUMBER('19'||SUBSTR(PNT_PRNO,1,6))
+                                 WHEN SUBSTR(PNT_PRNO,8,1)='3' OR SUBSTR(PNT_PRNO,8,1)='4' THEN TO_NUMBER('20'||SUBSTR(PNT_PRNO,1,6))
+                              END AS BYEAR
+                             , PNT_CD
+                       FROM PATIENT)T
+                 WHERE T.PNT_CD=#{pntCd}) AS AGE
+		FROM PATIENT P
+		WHERE P.PNT_CD =#{pntCd}  
+	</select>
+	
+	<!-- 환자 삭제 -->
+	<delete id="deletePatients" parameterType="String">
+		DELETE FROM PATIENT 
+		WHERE PNT_CD=#{pntCd}
+	</delete>
+	
+	
+	<!-- 바이탈사인 정보 가져오기 -->
+	<select id="vslist" parameterType="String" resultType="patientsVo">
+		SELECT PNT_CD, VS_DT, VS_BP_MAX, VS_TMP, VS_BS, VS_BP_MIN 
+	    FROM VS
+	    WHERE PNT_CD = #{pntCd}  
+	    ORDER BY VS_DT DESC
+	</select>
+</mapper>

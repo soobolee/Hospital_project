@@ -1,0 +1,21 @@
+package kr.or.ddit.stats.mapper;
+
+import kr.or.ddit.stats.vo.StatsVO;
+
+public interface StatsMapper {
+
+	// 금일 매출액 조회
+	public String todayAmount();
+	
+	// 기간별 매출액 조회 
+	public StatsVO selectAmount(StatsVO statsVO);
+	
+	// 금일 환자 수 조회
+	public String todayPatient();
+	
+	// 주간 환자 수 조회
+	public StatsVO selectWeekPnt();
+	
+	
+	
+}

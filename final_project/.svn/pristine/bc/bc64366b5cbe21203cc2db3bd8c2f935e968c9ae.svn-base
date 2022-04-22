@@ -1,0 +1,26 @@
+package kr.or.ddit.operation.service.Impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.operation.mapper.OperationMapper;
+import kr.or.ddit.operation.service.OperationService;
+import kr.or.ddit.operation.vo.OperationVO;
+
+@Service
+public class OperationServiceImpl implements OperationService {
+
+	@Autowired
+	OperationMapper operationMapper;
+
+	@Override
+	public List<OperationVO> selectOperList() {
+		
+		return operationMapper.selectOperList();
+	}
+	
+	
+}

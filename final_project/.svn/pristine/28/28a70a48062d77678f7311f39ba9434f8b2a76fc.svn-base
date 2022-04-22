@@ -1,0 +1,30 @@
+package kr.or.ddit.operation.vo;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Repository
+@Getter
+@Setter
+@ToString
+public class PatientVO {
+	private String pntCd;
+	private String pntNm;
+	private String prno;
+	private String telno;
+	private String addr;
+	private String chrDr;
+	private int height;
+	private int weight;
+	private int smkYn;
+	private int drkYn;
+	private String prtcrNm;
+	private String prtcrTel;
+	private int statusCd;
+}

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+	<mapper namespace="kr.or.ddit.ent.mapper.EntMapper">
+	
+	<select id="entPatientList" resultType="entVO">
+		 SELECT P.PNT_NM,
+		        PS.STATUS_NM, 
+		        P.PNT_CD,
+		        CASE substr(P.PRNO, 8, 1) WHEN '1' THEN '남' WHEN '2' THEN '여' WHEN '3' THEN '남' ELSE '여' END AS PRNO,
+		         P.TELNO,
+		         P.CHR_DR
+		   FROM PATIENT P INNER JOIN PATIENTSTATUS PS
+		     ON (P.STATUS_CD = PS.STATUS_CD)
+		    AND P.STATUS_CD = 8
+	</select>
+	
+	<select id="patientDetail" resultType="entVO" parameterType="String">
+		SELECT PNT_CD, PNT_NM, PRNO, TELNO, ADDR, CHR_DR, HEIGHT, WEIGHT, SMK_YN, DRK_YN, PRTCR_NM, PRTCR_TEL, STATUS_CD
+		  FROM PATIENT
+		 WHERE PNT_CD = #{pntCd}
+	</select>
+	
+</mapper>

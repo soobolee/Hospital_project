@@ -1,0 +1,22 @@
+package kr.or.ddit.ent.service;
+
+import java.util.List;
+
+import kr.or.ddit.ent.vo.EntVO;
+
+
+public interface EntService {
+	
+	public List<EntVO> entPatientList();
+	
+	public EntVO patientDetail(String pntCd);
+
+	public List<EntVO> entWardPntList(); 
+	
+	public int updatePntEnt(String pntCd);
+	
+	public List<EntVO> getBedRoom();
+	
+	public List<EntVO> getWard();
+	
+}

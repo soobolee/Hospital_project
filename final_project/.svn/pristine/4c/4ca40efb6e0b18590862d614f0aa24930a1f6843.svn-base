@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="kr.or.ddit.medical.mapper.MedicalMapper">
+	
+	 <!-- 진료예약목록 -->
+	 <select id="selectListMedicalYeyak" parameterType="hashMap" resultType="medicalVo">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.selectListMedicalYeyak */
+		SELECT 
+			P.PNT_NM AS PNT_NM
+			 , SUBSTR(P.PNT_PRNO, 1, 6) AS PNT_PRNO
+		   	, R.RSVT_DT AS RSVT_DT
+		   	, P.STATE_CD AS STATE_CD
+		FROM PATIENT P, RESERVATION R
+		WHERE 1 = 1
+		AND P.PNT_CD = R.PNT_CD -- 환자 - 진료예약 조인조건(환자코드)
+		AND P.STATE_CD = 'PS1' -- PS1 : 예약
+		ORDER BY R.RSVT_DT -- 예약일시 순으로 정렬
+	 </select>
+
+	 <!-- 진료대기목록 -->
+	 <select id="selectListMedicalDaegi" parameterType="hashMap" resultType="medicalVo">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.selectListMedicalDaegi */
+		SELECT 
+			P.PNT_NM AS PNT_NM
+			 , SUBSTR(P.PNT_PRNO, 1, 6) AS PNT_PRNO
+		   	, R.RSVT_DT AS RSVT_DT
+		   	, P.STATE_CD AS STATE_CD
+		FROM PATIENT P, RESERVATION R
+		WHERE 1 = 1
+		AND P.PNT_CD = R.PNT_CD /* 환자 - 진료예약 조인조건(환자코드) */
+		AND P.STATE_CD = 'PS1' /* PS1 : 예약 */
+		ORDER BY R.RSVT_DT /* 예약일시 순으로 정렬*/
+	 </select>
+
+	 <!-- 진료상세조회 -->
+	 <select id="selectDetailMedical" parameterType="medicalVo" resultType="medicalVo">
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.selectDetailMedical */
+		SELECT P.PNT_NM AS PNT_NM
+			, SUBSTR(P.PNT_PRNO, 1, 6) AS PNT_PRNO
+		   	, EXTRACT(YEAR FROM SYSDATE) - (DECODE(SUBSTR(P.PNT_PRNO, 8, 1), '1', '19', '2', '19', '20') || SUBSTR(P.PNT_PRNO, 1, 2)) +1 AS AGE
+		   	, P.PNT_ADDR AS ADDR
+		    , P.PNT_HP AS PNT_HP
+		    , R.SYMPTOMS AS SYMPTOMS
+		    , (SELECT CMNT_CONT
+		         FROM CMNT C
+		   		WHERE C.PNT_CD = P.PNT_CD) AS CMNT_CONT
+		FROM PATIENT P, RESERVATION R
+		WHERE 1 = 1
+		AND P.PNT_CD = R.PNT_CD 	-- 환자 - 진료예약 조인조건(환자코드)
+		AND P.PNT_CD = #{pntCd} 		-- 00001 환자
+	 </select>
+	 
+	 <!--코멘트 저장  -->
+	<insert id="insertCmnt" parameterType="medicalVo" >0
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.insertCmnt */
+		INSERT INTO CMNT(
+			CMNT_NO
+			, PNT_CD
+			, EMP_CD
+			, CMNT_CONT
+			, CMNT_DT
+		)VALUES ( 
+			(SELECT NVL(MAX(CMNT_NO), 0) +1 FROM CMNT) -- 코멘트번호
+       		, #{pntCd}
+      		, 'EMP00001'
+      		, #{cmntCont}
+      		, SYSDATE 
+      	)
+	</insert>
+
+	<!-- 증상 수정  -->
+	<update id="updateSymptoms" parameterType="medicalVo" >
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.updateSymptoms */
+		UPDATE CMNT
+	   	SET SYMPTOMS = #{symptoms}
+	 	WHERE RSVT_NO =  #{rsvtNo}
+	</update>
+
+	<!-- 코멘트 수정  -->
+	<update id="updateCmnt" parameterType="medicalVo" >
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.updateCmnt */
+		UPDATE CMNT
+	   	SET CMNT_CONT = #{cmntCont}
+	 	WHERE CMNT_NO =  #{cmntNo}
+	</update>
+
+	<!-- 코멘트 삭제  -->
+	<delete id="deleteCmnt" parameterType="medicalVo" >
+	 	/* kr.or.ddit.medical.vo.MedicalMapper.deleteCmnt */
+		DELETE FROM CMNT
+		WHERE CMNT_NO =#{cmntNo}
+	</delete>
+	 
+</mapper>

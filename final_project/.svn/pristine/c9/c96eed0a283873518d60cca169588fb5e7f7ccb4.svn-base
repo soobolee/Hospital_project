@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="kr.or.ddit.operation.mapper.OperationMapper">
+	
+	 <!-- 진료목록 -->
+	 <select id="selectOperList" resultType="operationVO">
+	   SELECT DISTINCT A.OPER_CD
+                ,A.OP_ROOM_NO
+                ,C.EMP_NM
+				,A.OPER_YMD
+				,A.OPER_BGN_TM
+				,A.OPER_END_TM
+                , CASE WHEN SYSDATE BETWEEN TO_DATE(A.OPER_YMD || ' ' || A.OPER_BGN_TM,'YYYY/MM/DD HH24:MI:SS') AND TO_DATE(A.OPER_YMD || ' ' || A.OPER_END_TM,'YYYY/MM/DD HH24:MI:SS') THEN 'Y'
+                       ELSE 'N'
+                  END operIng
+				,B.OPC_NM
+				,P.PNT_CD
+				,P.PNT_NM
+				 FROM OPERATION A, OPER_PROC B, EMP C, PATIENT P
+                WHERE C.EMP_CD = A.EMP_CD 
+                  AND A.PNT_CD = P.PNT_CD
+		
+	 </select>
+	
+	 <select id="operChart" resultType="chartVO">
+	 SELECT (TO_NUMBER(SUBSTR(A.OPER_BGN_TM,1,2)*60)+TO_NUMBER(SUBSTR(A.OPER_BGN_TM,4,2)))/60 as ChartStart
+     	   ,(TO_NUMBER(SUBSTR(A.OPER_END_TM,1,2)*60)+TO_NUMBER(SUBSTR(A.OPER_END_TM,4,2)))/60 as ChartEnd
+      	   ,A.OP_ROOM_NO
+      	   , CASE WHEN SYSDATE BETWEEN TO_DATE(A.OPER_YMD || ' ' || A.OPER_BGN_TM,'YYYY/MM/DD HH24:MI:SS') AND TO_DATE(A.OPER_YMD || ' ' || A.OPER_END_TM,'YYYY/MM/DD HH24:MI:SS') THEN 'Y'
+                       ELSE 'N'
+                   END OPER_ING
+      	   ,B.EMP_NM
+      	   ,C.PNT_NM
+       
+       FROM OPERATION A, EMP B, PATIENT C
+       WHERE A.PNT_CD = C.PNT_CD
+       AND A.EMP_CD = B.EMP_CD
+       ORDER BY A.OP_ROOM_NO
+	 </select>
+	 <select id="pntInfo" resultType="operDetailVO" parameterType="String">
+	 	 SELECT P.PNT_CD, P.PNT_NM
+            , P.PNT_PRNO, P.PNT_SEX
+            , P.PNT_ADDR, P.PNT_HP , P.CHR_DR
+            , P.HEIGHT, P.WEIGHT
+            , CASE WHEN P.SMK_YN = 0 THEN 'N'
+                      WHEN P.SMK_YN = 1 THEN 'Y'  END AS SMOKING
+               , CASE WHEN P.DRK_YN = 0 THEN 'N'
+                      WHEN P.DRK_YN = 1 THEN 'Y' END AS DRINKING
+               , CASE WHEN P.PRGNT_YN = 0 THEN 'N'
+                      WHEN P.PRGNT_YN = 1 THEN 'Y' END AS PREGNANCY
+               , P.STATE_CD, P.PRTCR_NM
+            , P.PRTCR_TEL, P.PNT_REG_DT
+            , P.DEL_YN, P.ENABLED
+               ,(SELECT TRUNC(MONTHS_BETWEEN(TRUNC(SYSDATE), TO_DATE(T.BYEAR,'YYYYMMDD')) / 12) 
+                 FROM (SELECT CASE 
+                                 WHEN SUBSTR(PNT_PRNO,8,1)='1' OR SUBSTR(PNT_PRNO,8,1)='2' THEN TO_NUMBER('19'||SUBSTR(PNT_PRNO,1,6))
+                                 WHEN SUBSTR(PNT_PRNO,8,1)='3' OR SUBSTR(PNT_PRNO,8,1)='4' THEN TO_NUMBER('20'||SUBSTR(PNT_PRNO,1,6))
+                              END AS BYEAR
+                             , PNT_CD
+                       FROM PATIENT)T
+                 WHERE T.PNT_CD=#{pntCd}) AS AGE
+      FROM PATIENT P
+      WHERE P.PNT_CD =#{pntCd}  
+	 </select>
+	 <select id="operPntInfo" resultType="operDetailVO" parameterType="String">
+	 	SELECT P.PNT_NM
+	          ,P.PNT_PRNO
+              ,P.PNT_SEX
+              ,P.HEIGHT
+      		  ,P.WEIGHT
+      		  ,OC.OPC_NM      
+  		 FROM OPERATION O, PATIENT P, OPER_PROC OC
+ 	    WHERE O.OPC_CD = OC.OPC_CD 
+          AND O.PNT_CD = P.PNT_CD
+          AND O.OPER_CD = #{operCd}
+	 </select>
+	 <select id="operPntVS" resultType="operDetailVO" parameterType="String">
+	 	SELECT B.PNT_NM
+      		  ,B.VS_DT
+      		  ,B.VS_BP_MAX
+      		  ,B.VS_BP_MIN
+      		  ,B.VS_TMP
+      		  ,B.VS_BS
+      		  ,B.YMD
+  		  FROM (SELECT P.PNT_NM
+     				  ,V.VS_DT
+      		  		  ,V.VS_BP_MAX
+      		  		  ,V.VS_BP_MIN
+      		  		  ,V.VS_TMP
+      	 	  		  ,V.VS_BS
+              		  ,TO_NUMBER(SUBSTR(V.VS_DT,1,4)||SUBSTR(V.VS_DT,6,2)||SUBSTR(V.VS_DT,9,2)) AS YMD
+  		 		  FROM  PATIENT P, VS V 
+ 				 WHERE P.PNT_CD = V.PNT_CD
+ 		  		   AND V.PNT_CD = #{pntCd}
+        		 ORDER BY YMD DESC)B
+ 		 WHERE <![CDATA[ROWNUM <= 5]]>
+ 		 ORDER BY YMD
+   		  
+	 </select>
+	 <select id="operPntInj" resultType="operDetailVO" parameterType="String">
+	 	SELECT D.DRUG_NM
+      	      ,I.DOSAGE
+      	      ,I.INJ_DT
+          FROM DRUG D , INJECT I, PATIENT P
+         WHERE I.DRUG_CD = D.DRUG_CD
+           AND I.PNT_CD = P.PNT_CD
+           AND P.PNT_CD = #{pntCd}
+	 </select>
+	 <select id="operIns" resultType="operDetailVO" parameterType="String">
+		SELECT IT.INSP_NM           
+              ,P.PNT_NM
+              ,IL.INSP_DT
+          FROM INSP_TYPE IT, INSP_LOG IL,PATIENT P,TREAT T, INSPECTION I
+ 		 WHERE P.PNT_CD = T.PNT_CD
+   		   AND T.TREAT_CD = I.TREAT_CD
+   	       AND I.INSP_CD = IL.INSP_CD
+   	       AND IL.INSP_TYPE_CD = IT.INSP_TYPE_CD
+           AND P.PNT_CD = #{pntCd}
+	 </select>
+	 <select id="operTeam" resultType="operDetailVO" parameterType="String">
+	 	SELECT E.EMP_NM
+	 	      ,E.SEC_CD
+	 	      ,S.SEC_NM
+	 	      ,S.DEPT_NM
+	 	      ,O.OPER_CD
+  	     FROM EMP E, OPERATION O, OPER_TEAM OT, SEC S
+        WHERE O.OPER_CD=OT.OPER_CD
+          AND E.SEC_CD = S.SEC_CD
+   	      AND OT.EMP_CD=E.EMP_CD
+          AND OT.OPER_CD=#{operCd}
+	 </select>
+	 <select id="pntVS" resultType="pntVSVO" parameterType="String">
+	 	SELECT B.PNT_NM
+		      ,B.VS_DT
+		      ,B.VS_BP_MAX
+		      ,B.VS_BP_MIN
+		      ,B.VS_TMP
+		      ,B.VS_BS
+		      ,B.YMD
+		      ,SUBSTR(B.VS_DT,6,5) AS DDATE
+  		 FROM (SELECT P.PNT_NM
+		     		 ,V.VS_DT
+		      		 ,V.VS_BP_MAX
+		      	  	 ,V.VS_BP_MIN
+		      	     ,V.VS_TMP
+		      	 	 ,V.VS_BS
+              		 ,TO_NUMBER(SUBSTR(V.VS_DT,1,4)||SUBSTR(V.VS_DT,6,2)||SUBSTR(V.VS_DT,9,2)) AS YMD
+  		         FROM  PATIENT P, VS V 
+ 				WHERE P.PNT_CD = V.PNT_CD
+ 		  		  AND V.PNT_CD = 'PNT00001'
+        		ORDER BY YMD DESC)B
+ 		WHERE <![CDATA[ROWNUM <= 5]]>
+ 		ORDER BY YMD
+        
+   		  
+	 </select>
+</mapper>

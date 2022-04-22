@@ -1,0 +1,38 @@
+package kr.or.ddit.security;
+
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+
+import kr.or.ddit.login.mapper.LoginMapper;
+
+//인증 전에 접근을 시도한 URL(/login)로 redirect하는 기능을 갖고 있음
+//스프링 시큐리티에서 기본적으로 사용되는 구현 클래스
+public class CustomLoginSuccessHandler extends
+	SavedRequestAwareAuthenticationSuccessHandler{
+	private static final Logger logger = 
+			LoggerFactory.getLogger(CustomLoginSuccessHandler.class);
+	
+	@Autowired
+	LoginMapper loginMapper;
+	
+	@Override
+	public void onAuthenticationSuccess(HttpServletRequest request,
+			HttpServletResponse response, Authentication authentication)
+			throws ServletException, IOException {
+		User customUser = (User) authentication.getPrincipal();
+		logger.info("login 상태 변경 : " + customUser.getUsername());
+		loginMapper.online(customUser.getUsername());
+		
+		super.onAuthenticationSuccess(request, response, authentication);
+	}
+}

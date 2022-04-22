@@ -1,0 +1,12 @@
+package kr.or.ddit.operation.mapper;
+
+import java.util.List;
+
+
+import kr.or.ddit.operation.vo.OperationVO;
+
+public interface OperationMapper {
+	
+	public List<OperationVO> selectOperList();
+	
+}

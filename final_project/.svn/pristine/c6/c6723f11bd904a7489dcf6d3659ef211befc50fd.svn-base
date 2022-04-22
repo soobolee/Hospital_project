@@ -1,0 +1,22 @@
+package kr.or.ddit.ent.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import kr.or.ddit.ent.service.EntService;
+
+@RequestMapping("/ent")
+@Controller
+public class EntController {
+	
+	@Autowired 
+	EntService entService;
+	
+	@GetMapping("/main")
+	private String entMain() {
+		return "ent/entHome";
+	}
+	
+}

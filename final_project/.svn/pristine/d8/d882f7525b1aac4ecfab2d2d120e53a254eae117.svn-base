@@ -1,0 +1,110 @@
+package kr.or.ddit.ent.controller;
+
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.ddit.ent.service.EntService;
+import kr.or.ddit.ent.vo.EntVO;
+import kr.or.ddit.ent.vo.WardVO;
+
+@RequestMapping("/ent")
+@Controller
+public class EntController {
+	
+	private static final Logger logger = LoggerFactory.getLogger(EntController.class);
+	
+	@Autowired 
+	EntService entService;
+	
+	// 입원 대기중인 환자 페이지로 가는 ------ 입원 대기중인 환자 정보, 병동의 조직도, 입원 중인 환자의 정보를 가져감    입원에서는 우선 대기중인 환자를 입원 시켜줘야하기 때문에 main으로 잡음
+	@GetMapping("/entHome")
+	private String entMain(Model model) {
+		List<EntVO> entVO = entService.entWardPntList();
+		List<EntVO> waitEtVO = entService.entPatientList();
+		List<WardVO> wardVOList = entService.getWard();
+		
+		model.addAttribute("waitPnt", waitEtVO);
+		model.addAttribute("entVO", entVO);
+		logger.info("entVO : : " + entVO);
+		model.addAttribute("wardVOList", wardVOList);   // resultMap 을 이용하여 병동1 : 호실N 의 관계로 가져옴
+		
+		return "ent/entHome";
+	}
+	
+	@GetMapping("/enting")
+	private String enting(Model model) {
+		List<EntVO> entVO = entService.entWardPntList();
+		List<EntVO> waitEtVO = entService.entPatientList();
+		List<WardVO> wardVOList = entService.getWard();
+		
+		model.addAttribute("waitPnt", waitEtVO);
+		model.addAttribute("entVO", entVO);
+		logger.info("entVO : : " + entVO);
+		model.addAttribute("wardVOList", wardVOList);   // resultMap 을 이용하여 병동1 : 호실N 의 관계로 가져옴
+		
+		return "ent/enting";
+	}
+	
+	// Modal에 환자 상세 정보를 출력하는 메서드
+	@PostMapping("/pntModal")
+	@ResponseBody
+	private EntVO pntModal(Model model, @RequestParam String pntCd) {
+		EntVO waitPntDetail = entService.patientDetail(pntCd);
+		
+		return waitPntDetail;
+	}
+	
+	
+	@GetMapping("/getRoom")
+	@ResponseBody
+	private List<EntVO> getRoom(@RequestParam String roomCls){
+		List<EntVO> liEntVO = entService.getRoom(roomCls);
+
+		return  liEntVO;
+	}
+	
+	@GetMapping("/saveRoom")
+	@ResponseBody
+	private int saveRoom(@RequestParam Map<String, Object> map) {
+		logger.info(map.toString());
+		int saveRst = entService.saveRoom(map);
+		logger.info("saveRst : " + saveRst);
+		
+		return saveRst;
+	}
+	
+	// 등록 버튼을 누르면 테두리 있는 애가 선택되어 입원 환자로 상태코드 및 ent테이블에 추가되는 코드	
+	@PostMapping("/updateEnt")
+	@ResponseBody
+	private int uppdateEnt(@RequestParam Map<String, Object> map) {
+		logger.info(map.toString());
+		int updateEnt = entService.updateEnt((String)map.get("pntCd"));
+		int insertEnt = entService.insertEnt(map);
+		
+		return insertEnt;
+	}
+	
+	// 나중에 환자 디테일 정보 가지고 오는 쿼리 짜자~~~~~~~~~~~~~~~~~~~~~~
+	@PostMapping("/getEntDetail")
+	@ResponseBody
+	private EntVO getEntDetail(@RequestParam String pntCd) {
+		logger.info("getEntDetail : " + pntCd);
+		EntVO entVO = new EntVO();
+		
+		entVO = entService.getEntDetail(pntCd);
+		
+		return entVO;
+	}
+	
+}

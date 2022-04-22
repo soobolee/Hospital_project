@@ -1,0 +1,11 @@
+package kr.or.ddit.reservation.service;
+
+import java.util.List;
+
+import kr.or.ddit.reservation.vo.ReservationVO;
+
+public interface ReservationService {
+
+	//특정 환자 예약정보 확인
+	public List<ReservationVO> reservlist(String pntCd);
+}

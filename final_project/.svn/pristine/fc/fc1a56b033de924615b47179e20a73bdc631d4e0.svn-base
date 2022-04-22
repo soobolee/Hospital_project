@@ -1,0 +1,672 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+
+<link rel="stylesheet" href="/resources/css/ent/entCommon.css" type="text/css"/>
+
+<style>
+ #vsInsertBtn, #cmInsertBtn {
+	margin: 0.5%;
+}
+ #searchArea{
+ 	display: inline-block;
+ }
+ .bed{
+ 	width: 20%;
+ 	height: 42%;
+ 	margin: 2%;
+ }
+ #positionNav{
+ 	float:right; width: 86%; height:80%; overflow:auto; display:flex;flex-wrap: wrap;
+ }
+ /* 스크롤바 설정*/
+   .type2::-webkit-scrollbar{
+       width: 6px;
+   }
+   
+   /* 스크롤바 막대 설정*/
+   .type2::-webkit-scrollbar-thumb{
+       height: 17%;
+       background-color: rgba(33,133,133,1);
+       border-radius: 10px;  
+   }
+   
+   /* 스크롤바 뒷 배경 설정*/
+   .type2::-webkit-scrollbar-track{
+       background-color: rgba(33,133,133,0.33);
+   }
+   .levDtOvertime:hover{
+   	   transform: scale(1.09);
+   	   background-color: #FAAA8D;
+   }
+   .levDtOvertime{
+   	   cursor:pointer;
+   }
+   .addEntDate{
+   	  height : 60px;
+   	  width : 270px;
+	  display: none;
+	  position: absolute;
+   }
+   .addLevDtBtn, .cancleBtn{
+   	  height: 30px;
+   	  width: 40px;
+   	  padding : 0;
+   	  font-size: 0.6em;
+   }
+ </style>
+
+<script>
+	$(function(){
+		var csrfParameter = $("meta[name=_csrf_parameter]").attr("content");
+		var csrfHeader = $("meta[name=_csrf_header]").attr("content");
+		var csrfToken = $("meta[name=_csrf]").attr("content");
+		
+		var today = new Date();
+		var now = today.toLocaleDateString();
+		
+		$("#enting").on("click", function(){
+			location.href = "/ent/enting";
+		})
+		$("#notenting").on("click", function(){
+			location.href = "/ent/entHome";
+		})
+		$("#Wdteam").on("click", function(){
+			location.href = "/ent/entEmp";
+		})
+		
+		$("#searchBtn").on("click", function(){
+			var keyword = $("#keyword").val();
+			location.href = "/ent/enting?keyword=" + keyword + "&lkCd=${param.lkCd}";
+		})
+		
+		$("#entList").on("click", function(){
+			$("#entPosition").show();
+			$("#entList").hide();
+			$("#entListTable").show();
+			$("#searchArea").show();
+			$("#positionMap").hide();
+		})
+		$("#entPosition").on("click", function(){
+			$("#entList").show();
+			$("#entPosition").hide();
+			$("#entListTable").hide();
+			$("#searchArea").hide();
+			$("#positionMap").show();
+		})
+		// 자리배치도 호실을 누르면 방 배치가 뜸.
+		$(".getRoom").on("click", function(){
+			var data = {"roomCls": this.id};
+			$.ajax({
+				url : "/ent/getRoom",
+				method : "GET",
+				data : data,
+				success : function(rst){
+					$("#positionNav").empty();
+					$.each(rst, function(i, v){
+						var div = document.createElement("div");   div.setAttribute("class","bed"); div.setAttribute("id", v.bed);
+						var h3 = document.createElement("h3");     h3.innerHTML = v.bed;div.appendChild(h3); h3.value = v.pntCd;
+						div.style.order = v.bedOrder; // 자리 배치 순서.
+						div.value = v.bedNo;
+// 						div.addEventListener("click", drawBorder.bind(null, div));
+						
+						if(!v.pntCd){
+							div.style.backgroundColor = "#c0c0c0";
+						}else{
+							div.style.backgroundColor = "#ff9e81";
+							var h4 = document.createElement("h4"); h4.innerHTML = v.pntNm; 
+							div.appendChild(h4);
+						}
+						
+						$("#positionNav").append(div);
+					})
+				}
+			})
+		})
+		// 간호일지를 눌렀을 때.
+		$(document).on("click", ".careNote", function(){
+			var data = {"entCd":this.id};  // entCd
+			var pntNm = $(this).attr("value");
+			var pntCd = $(this).attr("name"); // pntCd
+			
+			$(".modal-content").attr("value", this.id); // entCd
+			$(".modal-content").attr("id", pntCd); // pntCd
+			
+			$.ajax({
+				url : "/ent/getCareNote",
+				method : "get",
+				data : data,
+				success : function(res){
+					$("#exampleModalLabel").html(pntNm + " 간호일지");
+					$("#careNoteContent").empty();
+					console.log(res);
+					var div = "";
+					var table = "<table id='cmTB' style='width:100%; text-align:center; table-layout: fixed;'>";
+					table += "<tr>";
+					table += "<th>내용</th>"; table += "<th>등록자</th>"; table += "<th>등록일</th>";
+					table += "</tr>";
+					if(res.length >= 1){
+						$.each(res, function(i, v){
+							table += "<tr>";
+							table += "<td style='text-overflow:ellipsis;overflow:hidden;white-space:nowrap;' title='"+v.noteContent+"'>"+v.noteContent+"</td>"; table += "<td>"+v.empNm+"</td>"; table += "<td>"+v.noteWrtDt+"</td>"; 
+							table += "</tr>";
+						})
+					}
+					table += "</table>";
+					
+					$("#careNoteContent").append(table);
+				}
+			})
+			var data2 = {"pntCd":pntCd};
+			$.ajax({
+				url : "/ent/getVital",
+				method : "get",
+				data : data2,
+				success : function(res){
+					$("#vitalSignContent").empty();
+					console.log(res);
+					var div = "";
+					var table = "<table id='vstb' style='width:100%; text-align:center; table-layout: fixed;'>";
+					table += "<tr>";
+					table += "<th>혈압</th>"; table += "<th>체온</th>"; table += "<th>혈당</th>"; table += "<th>측정일</th>";
+					table += "</tr>";
+					if(res.length >= 1){
+						$.each(res, function(i, v){
+							table += "<tr style='overflow:hidden;'>";
+							table += "<td>"+v.vsBpMax+"/"+v.vsBpMin +"</td>"; table += "<td>"+v.vsTmp+"</td>"; table += "<td>"+v.vsBs+"</td>"; table += "<td>"+v.vsDt+"</td>"; 
+							table += "</tr>";
+						})
+					}
+					table += "</table>";
+					
+					$("#vitalSignContent").append(table);
+				}
+			})
+		})
+		// 간호일지 바이탈 사인 등록
+		$("#vsInsertBtn").on("click", function(){
+			var btn = $("#vsInsertBtn").parent().parent();
+			var pntCd = $(btn).attr("id"); // pntCd
+			
+			var mxBp = $("#mxBp").val();
+			var mnBp = $("#mnBp").val();
+			var tmpe = $("#tmpe").val();
+			var vsBs = $("#vsBs").val();
+			var table = "<tr><td>"+mxBp+"/"+mnBp+"</td>"; table += "<td>"+tmpe+"</td>"; table += "<td>"+vsBs+"</td>"; table += "<td>"+now+"</td></tr>"; 
+
+			
+			if(mxBp.trim()=='' || mnBp.trim()=='' || tmpe.trim()=='' ||vsBs.trim()==''){
+				swal("경고!", "측정값을 입력해주세요.", "warning");
+				return false;
+			}else{
+				$("#mxBp").val(""); $("#mnBp").val(""); $("#tmpe").val(""); $("#vsBs").val("");
+				var data = {"pntCd":pntCd, "vsBpMax":mxBp, "vsBpMin":mnBp, "vsTmp":tmpe, "vsBs":vsBs};
+				$.ajax({
+					url : "/ent/insertVital",
+					method : "get",
+					data : data,
+					success : function(res){
+						if(res >= 1){
+							swal("성공", "등록 완료", "success");
+							$("#vstb").append(table);
+						}else{
+							swal("경고!", "등록 실패", "error");
+						}
+					}
+				})
+			}
+		})
+		// 간호일지 코멘트 입력
+		$("#cmInsertBtn").on("click", function(){
+			var btn = $("#cmInsertBtn").parent().parent();
+			var entCd = $(btn).attr("value"); // entCd
+			var empCd = $("#maxDivEle").attr("value");
+			var empNm = $("#maxDivEle").attr("name");
+			
+			
+			var cmtxt = $("#cmtxtarea").val();
+			console.log(empCd);
+			if(cmtxt.trim() == ''){
+				swal("경고!", "코멘트를 입력해주세요.", "warning");
+			}else{
+				var data = {"entCd":entCd, "noteContent":cmtxt, "empCd":empCd};
+				
+				$.ajax({
+					url : '/ent/insertCareNote',
+					method : 'get',
+					data : data,
+					success : function(res){
+						if(res >= 1){
+							$("#cmtxtarea").val("");
+							table = "<tr><td style='text-overflow:ellipsis;overflow:hidden;white-space:nowrap;' title='"+cmtxt+"'>"+cmtxt+"</td>"; table += "<td>"+empNm+"</td>"; table += "<td>"+now+"</td></tr>"; 
+							swal("성공", "등록 완료", "success");
+							$("#cmTB").append(table);
+						}else{
+							swal("경고!", "등록 실패", "error");
+						}
+					}
+				})
+			}
+			
+		})
+		// 자리배치도 헤더 보여주기
+		$(document).on("click", ".bed", function(){
+			$("#positionHead").css("display", "block");
+		})
+		
+		// 퇴원하기 눌렀을 때.
+		$(".leaving").on("click", function(){
+			var today = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0];
+			var levDt = new Date($(this).attr("levDt"));
+			var today = new Date(today);
+			
+			var difference = Math.abs(today - levDt);
+			var days = difference/(1000 * 3600 * 24);
+			
+			var trPr = $(this).parent().parent().parent().parent().parent();
+			
+			var pntCd = $(this).attr("pntCd");
+			var entCd = $(this).attr("entCd");
+			var treatCd = $(this).attr("treatCd");
+			var dietCd = $(this).attr("dietCd");
+			var bedNo = $(this).attr("bedNo");
+			var entAmt = $(this).attr("entAmt");
+			
+			var data = {};
+		    data[csrfParameter]=csrfToken;
+		    data["levDt"]=$(this).attr("levDt");
+		    data["pntCd"]=pntCd; 	  data["entCd"]=entCd;
+		    data["treatCd"]=treatCd;  data["dietCd"]=dietCd;
+		    data["bedNo"]=bedNo; 	  data["entAmt"]=entAmt;
+			
+			if(days > 0){
+	 			swal({
+	 				 title : "경고",
+	 				 text : "이 환자의 퇴원일은 "+days+"일 남았습니다.\n정말 퇴원 하시겠습니까?", 
+	 				 icon : "warning",
+	 				 buttons : ["퇴원", "취소"]
+	 			}).then(function(result){
+	 			      if(!result){
+	 				   	 $.ajax({
+	 				   		 url : '/ent/leaving',
+	 				   		 method : 'POST',
+	 				   		 data : data,
+	 				   		 success : function(res){
+	 				   			 if(res == 3){
+	 				   				 swal("알림", "퇴원처리에 성공했습니다.", "success");
+	 				   				$(trPr).hide();
+	 				   			 }else{
+	 				   				 swal("경고", "퇴원처리에 실패했습니다.", "error");
+	 				   			 }
+	 				   		 }
+	 				   	 })
+	 			      }
+	 			})
+			}else{
+	 			swal({
+	 				 title : "알림",
+	 				 text : "퇴원일 : " + this.id + "\n정말 퇴원 하시겠습니까?", 
+	 				 icon : "info",
+	 				 buttons : ["퇴원", "취소"]
+	 			}).then(function(result){
+	 			      if(!result){
+		 				   	 $.ajax({
+		 				   		 url : '/ent/leaving',
+		 				   		 method : 'POST',
+		 				   		 data : data,
+		 				   		 success : function(res){
+		 				   			 if(res == 3){
+		 				   				 swal("알림", "퇴원처리에 성공했습니다.", "success");
+		 				   				 $(trPr).hide();
+		 				   			 }
+		 				   		 }
+		 				   	 })
+	 			      }
+	 			})
+			}
+		})
+		
+		// 퇴원일 변경
+		$(document).on("click", ".levDtOvertime", function(){
+			entCd = $(this).attr("entCd");			
+			console.log(entCd);
+			$(this).find("div").show();
+		})
+		$(document).on("click", ".cancleBtn", function(e){
+			e.stopPropagation();
+			$(".adaLevDt").val("");
+			$(this).parent().hide();
+		})
+		$(document).on("click", ".addLevDtBtn", function(e){
+			e.stopPropagation();
+			var newlevDt = $(this).parent().find("input").val();
+			var reallevDt = new Date(newlevDt);
+			
+			var data = {"levDt":newlevDt, "entCd":entCd};
+			
+			if(newlevDt == ''){
+				swal("경고!", "퇴원일을 입력해주세요.", "warning");
+				return false;
+			}
+			if(reallevDt < new Date()){
+				swal("경고!", "이전일은 선택할 수 없습니다.", "warning");
+				return false;
+			}
+			
+			var prTd = $(this).parent().prev();
+			
+			$.ajax({
+				url : '/ent/updateLevDt',
+				method : 'get',
+				data : data,
+				success : function(res){
+					if(res >= 0){
+						$(prTd).empty();
+						$(prTd).append(newlevDt);
+						swal("알림", "퇴원일 갱신 성공", "success");
+						$(".addEntDate").hide();
+					}
+				}
+			})
+			
+		})
+		
+	})
+</script>
+
+<div class="col-lg-12" id="maxDivEle" value="${loginUser.empCd}" name="${loginUser.empNm}"> <!-- 세션 아이디 코드 숨겨놓기 -->
+<div class="single_element">
+	<div class="quick_activity">
+		<div class="row">
+			<div class="col-12">
+				<div class="quick_activity_wrap">
+					<div id="enting" class="single_quick_activity d-flex mainHeaderCount">
+						<div class="icon">
+							<img src="/resources/img/icon/wheel.svg" alt="">
+						</div>
+						<div class="count_content">
+							<h3>
+								<span class="counter">${entVOCnt}</span>
+							</h3>
+							<p>입원 중</p>
+						</div>
+					</div>
+					<div id="notenting" class="single_quick_activity d-flex mainHeaderCount">
+						<div class="icon">
+							<img src="/resources/img/icon/pharma.svg" alt="">
+						</div>
+						<div class="count_content">
+							<h3>
+								<span class="counter">${waitPntCnt}</span>
+							</h3>
+							<p>입원 대기</p>
+						</div>
+					</div>
+					<div id="Wdteam" class="single_quick_activity d-flex mainHeaderCount">
+						<div class="icon">
+							<img src="/resources/img/icon/cap.svg" alt="">
+						</div>
+						<div class="count_content">
+							<h3>
+								<span class="counter">${entEmpCnt}</span>
+							</h3>
+							<p>병동근무직원</p>
+						</div>
+					</div>
+					<div id="entNotice" class="single_quick_activity" style="padding:10px;">
+						<ul>
+							<li><span>이수보 환자 투약 30분 전</span></li>
+							<li><span>이수보 환자 퇴원 1일 전</span></li>
+							<li><span>이수보 환자 수술 1시간 전</span></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+
+<div class="main_content_iner ">
+	<div class="container-fluid p-0">
+	<div class="row justify-content-center">
+		<div class="col-12">
+		<div class="QA_section">
+				<h4 id="txtTitle">입원 중인 환자</h4>
+				<button type="button" id="entPosition" class="btn btn-info" style="margin:1%; float:left;">자리배치도</button> <!-- 컨트롤러에서 기본값으로 주고  requestParam이 1이면 목록으로 2이면 자리배치로 뜨게 설정 해놓기-->
+				<button type="button" id="entList" class="btn btn-info" style="margin:1%; float:left; display:none;">목록으로</button>
+			<div  id="searchArea" class="white_box_tittle list_header" style="float:right;">
+					<div class="box_right d-flex lms_block">
+					<div class="serach_field_2">
+					<div class="search_inner">
+					<form>
+						<div class="search_field">
+							<input type="text" id="keyword" placeholder="이름으로 검색..." value="${param.keyword}">
+						</div>
+						<button type="button"> <i class="ti-search"></i> </button>
+					</form>
+					</div>
+					</div>
+				<div class="add_button ml-10">
+				<button type="button" id="searchBtn" class="btn_1">검색</button>
+				</div>
+				</div>
+			</div>
+				<div id="entListTable" class="QA_table mb_30">
+				<div id="DataTables_Table_0_wrapper" class="dataTables_wrapper no-footer">
+					<a class="badge badge-secondary bdg" href="/ent/enting">전체</a>
+					<a class="badge badge-success bdg" href="/ent/enting?lkCd=LK1&keyword=${param.keyword}">비응급</a>
+					<a class="badge badge-warning bdg" href="/ent/enting?lkCd=LK2&keyword=${param.keyword}">응급</a>
+					<a class="badge badge-danger bdg" href="/ent/enting?lkCd=LK3&keyword=${param.keyword}">긴급</a>
+				<table class="table lms_table_active dataTable no-footer dtr-inline" id="DataTables_Table_0" role="grid" aria-describedby="DataTables_Table_0_info" style="width: 1586px; text-align: center;">
+				<thead>
+				<tr role="row">
+					<th id="th1" scope="col" class="sorting_asc" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 143px;" aria-sort="ascending" aria-label="title: activate to sort column descending">
+						환자명</th>
+					<th id="th2" scope="col" class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 180px;" aria-label="Category: activate to sort column ascending">
+						환자 연락처</th>
+					<th id="th2" scope="col" class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 180px;" aria-label="Category: activate to sort column ascending">
+						중증도</th>
+					<th id="th3" scope="col" class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 110px;" aria-label="Teacher: activate to sort column ascending">
+						자리</th>
+					<th id="th4" scope="col" class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 120px;" aria-label="Lesson: activate to sort column ascending">
+						담당의</th>
+					<th id="th5" scope="col" class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 100px;" aria-label="Enrolled: activate to sort column ascending">
+						퇴원일</th>
+					<th id="th6" scope="col" class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 140px;" aria-label="Price: activate to sort column ascending">
+						보호자 연락처</th>
+					<th id="th7" scope="col" class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" style="width: 90px;" aria-label="Status: activate to sort column ascending">
+						비고</th>
+				</tr>
+				</thead>
+				<tbody id="tbdy">
+					<c:forEach var="ent" items="${entVO}" varStatus="status">
+						<tr role="row">
+							<th scope="row" class="sorting_1" style="color:black; font-size:1.1em; font-weight:bold;">${ent.pntNm}</th>
+							<td>${ent.pntHp}</td>
+							<td>
+								<c:if test="${ent.liskCd eq 'LK1'}"><span class="badge badge-success">비응급</span></c:if>
+								<c:if test="${ent.liskCd eq 'LK2'}"><span class="badge badge-warning">응급</span></c:if>
+								<c:if test="${ent.liskCd eq 'LK3'}"><span class="badge badge-danger">긴급</span></c:if>
+							</td>
+							<td>${ent.bed}</td>
+							<td>${ent.chrDr}</td>
+							<td class="levDtOvertime" id="levDtTd" entCd="${ent.entCd}">
+										    <span class="forEmpty">${ent.levDt}</span>
+											<div class="addEntDate"><input type="date" class="adaLevDt">
+											<button class="btn btn-success addLevDtBtn">변경</button>
+											<button class="btn btn-danger cancleBtn">취소</button>
+											</div>
+							</td>
+							<td>${ent.prtcrTel}</td>
+							<td>
+								<div class="amoutn_action d-flex align-items-center">
+									<div class="dropdown ml-4">
+										<a class=" dropdown-toggle hide_pils" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+											<i class="fas fa-ellipsis-v"></i>
+										</a>
+										<div class="dropdown-menu dropdown-menu-left" aria-labelledby="dropdownMenuLink" x-placement="bottom-end" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(-147px, 23px, 0px);">
+											<p class="dropdown-item detailModal" id="${ent.entCd}" value="${ent.pntNm}" name="${ent.pntCd}" data-toggle="modal" data-target="#myModalDetail" style="cursor: pointer;">상세정보</p>
+											<p class="dropdown-item careNote" id="${ent.entCd}" value="${ent.pntNm}" name="${ent.pntCd}" data-toggle="modal" data-target="#myModal" style="cursor: pointer;">간호일지</p>
+											<p class="dropdown-item" style="cursor: pointer;" data-toggle="modal" data-target="#entScModal">환자일정</p>
+											<p class="dropdown-item" style="cursor: pointer;">진료기록</p>
+											<p class="dropdown-item leaving" style="cursor: pointer;" levDt="${ent.levDt}" pntCd="${ent.pntCd}" entCd="${ent.entCd}"
+																			 entAmt="${ent.entAmt}" bedNo="${ent.bedNo}" treatCd="${ent.treatCd}" dietCd="${ent.dietCd}">퇴원처리
+											</p>
+										</div>
+									</div>
+								</div> 
+							</td>
+						</tr>
+					</c:forEach>
+				</tbody>
+				</table>
+			  </div>
+			</div>
+		</div>
+		</div>
+	</div>	<!-- 병동 트리구조 조직도 뽑기====================================================================== -->
+			<div id="positionMap" class="alert alert-light" style="padding:2.8%; display:none; width: 100%; height:100%; overflow:auto;">
+				<div id="positionHead" class="alert alert-warning" style="width:100%; height:10%; display:none;">
+					헤더
+				</div>
+				<div id="positionAside" class="alert alert-danger" style="float:left; width:13%; height:80%;margin-right:1%;overflow:auto;">
+				  <h4 style="text-align:center;cursor:pointer;">전체 보기</h4><hr>
+				  <ul class="tree">
+				    <li>
+				      <input type="checkbox" id="root">
+				      <label for="root">병동정보</label>
+				      <ul>
+				      <c:forEach var="wardVO" items="${wardVOList}">
+				        <li>
+				          <input type="checkbox" id="node${wardVO.wardCls}">
+				          <label for="node${wardVO.wardCls}">${wardVO.wardCls}&nbsp;동</label>
+				          <ul>
+				          	<c:forEach var="roomVO" items="${wardVO.roomVO}">
+				          		<li id="${roomVO.roomCls}" class="getRoom">${roomVO.roomCls}&nbsp;호</li>
+				          	</c:forEach>
+				          </ul>
+				        </li>
+				        </c:forEach>
+				      </ul>
+				    </li>
+				  </ul>
+				</div>
+				<div id="positionNav" class="alert alert-secondary">
+				</div>
+			</div>
+	</div>
+</div>
+
+<!-- 간호일지  -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-slideout modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div style="float: left;"><h5 class="modal-title align-right" id="exampleModalLabel" style="font-weight: bolder; font-size: 20px;"></h5></div>
+      </div>
+      <div class="modal-body" style="height:100%; width:100%;">
+      	코멘트
+      	<div class="alert alert-warning type2" id="careNoteContent" style="height:150px; overflow-y:scroll;"></div>
+      	<p>바이탈 사인</p>
+		<div class="alert alert-danger type2" id="vitalSignContent" style="height:150px; overflow-y:scroll;"></div>
+		<table style="width:100%; text-align: center;">
+			<tr>
+				<td style="width:25%;">최고 혈압</td>
+				<td style="width:25%;">최저 혈압</td>
+				<td style="width:25%;">체온</td>
+				<td style="width:25%;">혈당</td>
+			</tr>
+			<tr>
+				<td><input type="text" id="mxBp"></td>
+				<td><input type="text" id="mnBp"></td>
+				<td><input type="text" id="tmpe"></td>
+				<td><input type="text" id="vsBs"></td>
+			</tr>
+		</table>
+		<button class="btn btn-primary" id="vsInsertBtn" type="button" style="display:block;margin-left:90.8%;">등록</button>
+		<div>
+      	</div>
+      	<hr>
+      	<p>코멘트</p>
+		<textarea id="cmtxtarea" rows="5" cols="130"></textarea>
+		<button class="btn btn-primary" id="cmInsertBtn" type="button">등록</button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="detailModalCloseBtn" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 환자 상세 정보 !@!@ -->
+<!-- 상세정보 조회 modal -->
+<div class="modal fade" id="myModalDetail" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-slideout" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+      </div>
+      <div class="modal-body type2">
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="detailModalCloseBtn" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 퇴원일 변경  -->
+<div class="dateModal" style="display:none;">
+	<div class="dateModalHeader"></div>
+	<div class="dateModalBody">
+		<input type="date" id="addEntDate" style="display:none;">
+	</div>
+</div>
+
+<!-- 환자 일정 모달 -->
+<div class="modal fade" id="entScModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-slideout modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+      </div>
+      <div class="modal-body" style="height:100%; width:100%;">
+      	<div class="white_box shadow-sm mb-3" style="float: left;">
+			<div class="message_pre_left">
+				<div class="messges_info">
+					<h4 class="mb-3">수술</h4>
+				</div>
+			</div>
+			<div id="yeyakTb_wrapper" class="dataTables_wrapper no-footer"><div id="yeyakTb_filter" class="dataTables_filter"><label>환자검색 : <input type="search" class="" placeholder="" aria-controls="yeyakTb"></label></div><table class="table dataTable no-footer" id="yeyakTb" role="grid" aria-describedby="yeyakTb_info" style="width: 379px;">
+				<thead>
+					<tr role="row"><th scope="col" class="text-center sorting_asc" tabindex="0" aria-controls="yeyakTb" rowspan="1" colspan="1" aria-sort="ascending" aria-label="예약시각: activate to sort column descending" style="width: 88px;">예약시각</th><th scope="col" class="text-center sorting" tabindex="0" aria-controls="yeyakTb" rowspan="1" colspan="1" aria-label="성함: activate to sort column ascending" style="width: 53px;">성함</th><th scope="col" class="text-center sorting" tabindex="0" aria-controls="yeyakTb" rowspan="1" colspan="1" aria-label="생년월일: activate to sort column ascending" style="width: 88px;">생년월일</th></tr>
+				</thead>
+			<tbody><tr role="row" class="odd"><td class="text-center sorting_1">09:00</td><td class=" text-center">조광하</td><td class=" text-center">360315</td></tr><tr role="row" class="even"><td class="text-center sorting_1">12:00</td><td class=" text-center">윤영공</td><td class=" text-center">410510</td></tr><tr role="row" class="odd"><td class="text-center sorting_1">12:00</td><td class=" text-center">윤영진</td><td class=" text-center">651225</td></tr><tr role="row" class="even"><td class="text-center sorting_1">12:00</td><td class=" text-center">강연식</td><td class=" text-center">910928</td></tr><tr role="row" class="odd"><td class="text-center sorting_1">12:00</td><td class=" text-center">신광일</td><td class=" text-center">381110</td></tr></tbody></table><div class="dataTables_info" id="yeyakTb_info" role="status" aria-live="polite">총 16명   1에서 5까지 표시</div><div class="dataTables_paginate paging_simple_numbers" id="yeyakTb_paginate"><a class="paginate_button previous disabled" aria-controls="yeyakTb" data-dt-idx="0" tabindex="0" id="yeyakTb_previous">이전</a><span><a class="paginate_button current" aria-controls="yeyakTb" data-dt-idx="1" tabindex="0">1</a><a class="paginate_button " aria-controls="yeyakTb" data-dt-idx="2" tabindex="0">2</a><a class="paginate_button " aria-controls="yeyakTb" data-dt-idx="3" tabindex="0">3</a><a class="paginate_button " aria-controls="yeyakTb" data-dt-idx="4" tabindex="0">4</a></span><a class="paginate_button next" aria-controls="yeyakTb" data-dt-idx="5" tabindex="0" id="yeyakTb_next">다음</a></div></div>
+      </div>
+      	<div class="white_box shadow-sm mb-3" style="float: right;">
+			<div class="message_pre_left">
+				<div class="messges_info">
+					<h4 class="mb-3">수술</h4>
+				</div>
+			</div>
+			<div id="yeyakTb_wrapper" class="dataTables_wrapper no-footer"><div id="yeyakTb_filter" class="dataTables_filter"><label>환자검색 : <input type="search" class="" placeholder="" aria-controls="yeyakTb"></label></div><table class="table dataTable no-footer" id="yeyakTb" role="grid" aria-describedby="yeyakTb_info" style="width: 379px;">
+				<thead>
+					<tr role="row"><th scope="col" class="text-center sorting_asc" tabindex="0" aria-controls="yeyakTb" rowspan="1" colspan="1" aria-sort="ascending" aria-label="예약시각: activate to sort column descending" style="width: 88px;">예약시각</th><th scope="col" class="text-center sorting" tabindex="0" aria-controls="yeyakTb" rowspan="1" colspan="1" aria-label="성함: activate to sort column ascending" style="width: 53px;">성함</th><th scope="col" class="text-center sorting" tabindex="0" aria-controls="yeyakTb" rowspan="1" colspan="1" aria-label="생년월일: activate to sort column ascending" style="width: 88px;">생년월일</th></tr>
+				</thead>
+			<tbody><tr role="row" class="odd"><td class="text-center sorting_1">09:00</td><td class=" text-center">조광하</td><td class=" text-center">360315</td></tr><tr role="row" class="even"><td class="text-center sorting_1">12:00</td><td class=" text-center">윤영공</td><td class=" text-center">410510</td></tr><tr role="row" class="odd"><td class="text-center sorting_1">12:00</td><td class=" text-center">윤영진</td><td class=" text-center">651225</td></tr><tr role="row" class="even"><td class="text-center sorting_1">12:00</td><td class=" text-center">강연식</td><td class=" text-center">910928</td></tr><tr role="row" class="odd"><td class="text-center sorting_1">12:00</td><td class=" text-center">신광일</td><td class=" text-center">381110</td></tr></tbody></table><div class="dataTables_info" id="yeyakTb_info" role="status" aria-live="polite">총 16명   1에서 5까지 표시</div><div class="dataTables_paginate paging_simple_numbers" id="yeyakTb_paginate"><a class="paginate_button previous disabled" aria-controls="yeyakTb" data-dt-idx="0" tabindex="0" id="yeyakTb_previous">이전</a><span><a class="paginate_button current" aria-controls="yeyakTb" data-dt-idx="1" tabindex="0">1</a><a class="paginate_button " aria-controls="yeyakTb" data-dt-idx="2" tabindex="0">2</a><a class="paginate_button " aria-controls="yeyakTb" data-dt-idx="3" tabindex="0">3</a><a class="paginate_button " aria-controls="yeyakTb" data-dt-idx="4" tabindex="0">4</a></span><a class="paginate_button next" aria-controls="yeyakTb" data-dt-idx="5" tabindex="0" id="yeyakTb_next">다음</a></div></div>
+      </div>
+    </div>
+    
+    <div style="width:100%; height:100px; background-color:red;">
+    	수술 일정 등록
+    </div>
+    <div style="width:100%; height:100px; background-color:blue;">
+    	투약 일정 등록
+    </div>
+    
+    <div class="modal-footer">
+      <button type="button" id="entScModal" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    </div>
+  </div>
+</div>
+</div>
+

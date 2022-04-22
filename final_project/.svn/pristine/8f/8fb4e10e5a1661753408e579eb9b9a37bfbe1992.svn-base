@@ -1,0 +1,51 @@
+package kr.or.ddit.stats.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.emp.mapper.EmpMapper;
+import kr.or.ddit.emp.service.EmpService;
+import kr.or.ddit.emp.vo.EmpVO;
+import kr.or.ddit.notice.mapper.NoticeMapper;
+import kr.or.ddit.notice.service.NoticeService;
+import kr.or.ddit.notice.vo.NoticeVO;
+import kr.or.ddit.sec.mapper.SecMapper;
+import kr.or.ddit.sec.vo.SecVO;
+import kr.or.ddit.stats.mapper.StatsMapper;
+import kr.or.ddit.stats.vo.StatsVO;
+
+@Service
+public class StatsServiceImpl implements StatsService {
+	
+	@Autowired
+	StatsMapper statsMapper;
+	
+	// 금일 매출액 조회
+	@Override
+	public String todayAmount() {
+		return statsMapper.todayAmount();
+	}
+	
+	// 기간별 매출액 조회
+	@Override
+	public StatsVO selectAmount(StatsVO statsVO) {
+		return statsMapper.selectAmount(statsVO);
+	}
+
+	// 금일 환자 수 조회
+	@Override
+	public String todayPatient() {
+		return statsMapper.todayPatient();
+	}
+
+	// 주간 환자 수 조회
+	@Override
+	public StatsVO selectWeekPnt() {
+		return statsMapper.selectWeekPnt();
+	}
+
+	
+}

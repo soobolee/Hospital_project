@@ -1,0 +1,29 @@
+@charset "UTF-8";
+
+	    .single_quick_activity{
+	    	cursor: pointer;
+			z-index: 1;
+			border: none;
+	    }
+		.single_quick_activity:after {
+		  position: absolute;
+		  content: "";
+		  width: 0;
+		  height: 100%;
+		  top: 0;
+		  right: 0;
+		  z-index: -1;
+		  background-color: #e6e6fa;
+		  border-radius: 4.3%;
+		  transition: all 0.3s ease;
+		}
+		.single_quick_activity:hover {
+		  color: #fff;
+		}
+		.single_quick_activity:hover:after {
+		  left: 0;
+		  width: 100%;
+		}
+ 		.single_quick_activity:active {
+ 		  top: 2px;
+ 		}

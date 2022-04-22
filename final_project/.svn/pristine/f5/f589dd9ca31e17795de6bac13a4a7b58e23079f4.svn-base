@@ -1,0 +1,38 @@
+package kr.or.ddit.ent.vo;
+
+import java.util.Date;
+
+import org.springframework.stereotype.Repository;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString
+@Repository
+public class EntVO {
+
+	// ent 테이블 
+	private String entNo;
+	private String treatNo;
+	private String pntCd;
+	private String entWardCd;
+	private Date entDt;
+	private Date levDt;
+	private int entCo;
+	private int mealCo;
+	private int totalAmt;
+	
+	// ent_ward 테이블
+	private String ward;
+	private String room;
+	private String bed;
+	private int nope;
+	private int dayAmt;
+	private int bedx;
+	private int bedy;
+	
+	
+}

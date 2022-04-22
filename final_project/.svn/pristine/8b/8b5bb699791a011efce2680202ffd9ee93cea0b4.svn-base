@@ -1,0 +1,23 @@
+package kr.or.ddit.stats.mapper;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.ddit.emp.vo.EmpVO;
+import kr.or.ddit.notice.vo.NoticeVO;
+import kr.or.ddit.sec.vo.SecVO;
+import kr.or.ddit.stats.vo.StatsVO;
+
+public interface StatsMapper {
+
+	// 금일 매출액 조회
+	public String todayAmount();
+	
+	// 기간별 매출액 조회 
+	public StatsVO selectAmount(StatsVO statsVO);
+	
+	// 금일 환자 수 조회
+	public String todayPatient();
+	
+	
+}

@@ -1,0 +1,121 @@
+@charset "UTF-8";
+	.modal-dialog {
+	  max-width: 60%;
+	  max-height: 85%;
+	}
+	.modal-dialog-slideout {
+	  min-height: 85%;
+	  margin: 80 0 0 auto;
+	  z-index:1;
+	  background: #fff;
+	}
+	.modal.fade .modal-dialog .modal-dialog-slideout {
+	  -webkit-transform: translate(100%, 0)scale(1);
+	  transform: translate(100%, 0)scale(1);
+	}
+	.modal.fade.show .modal-dialog .modal-dialog-slideout {
+	  -webkit-transform: translate(0, 0);
+	  transform: translate(0, 0);
+	  display: flex;
+	  align-items: stretch;
+	  -webkit-box-align: stretch;
+	  height: 100%;
+	}
+	.modal.fade.show .modal-dialog.modal-dialog-slideout .modal-body {
+	  overflow-y: auto;
+	  overflow-x: hidden;
+	}
+	.modal-dialog-slideout .modal-content {
+	  border: 0;
+	}
+	.modal-dialog-slideout .modal-header,
+	.modal-dialog-slideout .modal-footer {
+	  height: 4rem;
+	  display: block;
+	}
+	    .mainHeaderCount{
+	    	cursor: pointer;
+			z-index: 1;
+			border: none;
+	    }
+		.mainHeaderCount:after {
+		  position: absolute;
+		  content: "";
+		  width: 0;
+		  height: 100%;
+		  top: 0;
+		  right: 0;
+		  z-index: -1;
+		  background-color: #e6e6fa;
+		  border-radius: 4.3%;
+		  transition: all 0.3s ease;
+		}
+		.mainHeaderCount:hover {
+		  color: #fff;
+		  transform: scale(1.09);
+		}
+		.mainHeaderCount:hover:after {
+		  left: 0;
+		  width: 100%;
+		}
+ 		.mainHeaderCount:active {
+ 		  top: 2px;
+ 		}
+ 		
+ 		
+ 		.tree{
+	      color:#393939;
+	      font-size: 1.2em;
+	      font-weight: bold;
+	    }
+	    .tree, .tree ul{
+	      list-style: none;
+	      padding-left:20px;
+	    }
+ 	    .tree *:before{ 
+	      width:17px; 
+	      height:17px; 
+ 	      display:inline-block; 
+ 	    } 
+	    .tree label, li{
+	      cursor: pointer;
+	    }
+/* 	    .tree label:before{ */
+/* 	      content:'\f256'; */
+/* 	      font-family: fontello; */
+/* 	    } */
+	    .tree a{
+	      text-decoration: none;
+	      color:#393939;
+	    }
+	    .tree a:before{
+	      content:'\e800';
+	      font-family: fontello;
+	    }
+	    .tree input[type="checkbox"] {
+	      display: none;
+	    }
+	    .tree input[type="checkbox"]:checked~ul {
+	      display: none;
+	    }
+	    .tree input[type="checkbox"]:checked+label:before{
+	      font-family: fontello;
+	    }
+	    
+	    
+	    /* 스크롤바 설정*/
+	   .type2::-webkit-scrollbar{
+	       width: 6px;
+	   }
+	   
+	   /* 스크롤바 막대 설정*/
+	   .type2::-webkit-scrollbar-thumb{
+	       height: 17%;
+	       background-color: rgba(33,133,133,1);
+	       border-radius: 10px;  
+	   }
+	   
+	   /* 스크롤바 뒷 배경 설정*/
+	   .type2::-webkit-scrollbar-track{
+	       background-color: rgba(33,133,133,0.33);
+	   }

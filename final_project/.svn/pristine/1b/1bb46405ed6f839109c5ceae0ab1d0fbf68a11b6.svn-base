@@ -1,0 +1,266 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core_rt" %>
+
+<style>
+	   .modal-dialog {
+	     max-width: 88%;
+	     max-height:92%;
+	   }
+	   .modal-dialog-slideout {
+	     min-height: 80%;
+	     background: #fff;
+	   }
+	   .modal.fade .modal-dialog.modal-dialog-slideout {
+	     -webkit-transform: translate(100%, 0)scale(1);
+	     transform: translate(100%, 0)scale(1);
+	   }
+	   .modal.fade.show .modal-dialog.modal-dialog-slideout {
+	     -webkit-transform: translate(0, 0);
+	     transform: translate(0, 0);
+	     display: flex;
+	     align-items: stretch;
+	     -webkit-box-align: stretch;
+	     height: 100%;
+	   }
+	   .modal-body{
+	   		width: 100%;
+	   }
+	   .modal.fade.show .modal-dialog.modal-dialog-slideout .modal-body {
+	     overflow-y: auto;
+	     overflow-x: hidden;
+	   }
+	   .modal-dialog-slideout .modal-content {
+	     border: 0;
+	   }
+	   .modal-dialog-slideout .modal-header,
+	   .modal-dialog-slideout .modal-footer {
+	     height: 4rem;
+	     display: block;
+	   }
+	   	.tree{
+	      color:#393939;
+	      font-size: 1.4em;
+	      font-weight: bold;
+	    }
+	    .tree, .tree ul{
+	      list-style: none;
+	      padding-left:23px;
+	    }
+	    .tree *:before{
+	      width:17px;
+	      height:17px;
+	      display:inline-block;
+	    }
+	    .tree label{
+	      cursor: pointer;
+	    }
+	    .tree label:before{
+	      content:'\f256';
+	      font-family: fontello;
+	    }
+	    .tree a{
+	      text-decoration: none;
+	      color:#393939;
+	    }
+	    .tree a:before{
+	      content:'\e800';
+	      font-family: fontello;
+	    }
+	    .tree input[type="checkbox"] {
+	      display: none;
+	    }
+	    .tree input[type="checkbox"]:checked~ul {
+	      display: none;
+	    }
+	    .tree input[type="checkbox"]:checked+label:before{
+	      content:'\f255';
+	      font-family: fontello;
+	    }
+		#bHeader{
+		  width: 100%;
+		  height: 8%;
+		  margin-bottom:0.7%;
+		  border: 1px solid #f6f6f6;
+		}
+      	#BAside{
+			float: left;
+			width: 12.8%;
+			height: 93%;
+			border: 1px solid #f6f6f6;
+      	}
+      	#BNav{
+      		float: right;
+			width: 86.2%;
+			height: 93%;
+			background-color: #f6f6f6;
+      	}
+      	.bed {
+      		width: 14%; margin:1%; height: 10%; border-radius: 17%;
+      		background-color: blue; display: inline-block;
+      		position: absolute;
+      	}
+
+</style>
+<script>
+
+
+// 병동호실 번호를 눌렀을 때 해당 호실의 정보를 가져오는 Ajax
+function getRoom(t){
+	if($("#positionSave").css("display") == "none"){
+		var data = {"roomCls": t.id};
+	
+		$.ajax({
+			url : "/ent/getRoom",
+			method : "GET",
+			data : data,
+			success : function(rst){
+				$("#BNav").empty();
+				$.each(rst, function(i, v){
+					var div = document.createElement("div");   div.setAttribute("class","bed"); div.setAttribute("id", v.bed);
+					var h3 = document.createElement("h3");     h3.innerHTML = v.bed;div.appendChild(h3);
+					div.style.top = v.bedy + "px";	  		   div.style.left = v.bedx + "px";
+					div.addEventListener("click", drawBorder.bind(null, div));
+					if(!v.pntCd){
+						div.style.backgroundColor = "blue";
+					}else{
+						div.style.backgroundColor = "red"; var h4 = document.createElement("h4"); h4.innerHTML = v.pntNm; 
+						div.appendChild(h4);
+					}
+					$("#BNav").append(div);
+				})
+			}
+		})
+	}else{
+		alert("위치가 변경되었습니다.\n저장해주세요.");
+	}
+}
+
+// 클릭시 좌우 거를 보더 해제 하는 스크립트
+function drawBorder(t){
+	nav = document.querySelector("#BNav");
+	
+	var prefriend = t.previousSibling;
+	var nxtfriend = t.nextSibling;
+	
+	if(prefriend){
+		prefriend.style.border = 0;			
+	}
+	if(nxtfriend){
+		nxtfriend.style.border = 0;
+	}
+	t.style.border = "3px solid black";
+}
+
+function positionBed(){
+	var child = $("#BNav").children();
+	
+	if(child.length <= 0){
+		alert("위치를 변경할 호실을 먼저 선택해 주세요.");
+		return false;
+	}else{
+		$("#positioning").css("display", "none");
+		$("#positionSave").css("display", "block");
+	}
+	
+	for(var i = 0; i < child.length; i++){
+		$(child[i]).on("click", function(){
+		    var v_nemoSX = 0;
+		    var v_nemoSY = 0;
+		    var v_mouseX;
+		    var v_mouseY;
+		    var v_isPressed = false;
+	        if(!this.style.left){
+	            this.style.left = v_nemoSX + "px";
+	            this.style.top = v_nemoSY + "px";
+	        }
+	        f_down = function(){
+	            if(event.button == 0){// 왼쪽 버튼일 때만
+	                v_nemoSX = parseInt(this.style.left);
+	                v_nemoSY = parseInt(this.style.top);
+	                v_mouseX = event.clientX;
+	                v_mouseY = event.clientY;
+
+	                v_isPressed = true;
+	            } 
+	        }
+	        this.addEventListener("mousedown", f_down);
+	        f_up = function(){
+	            v_isPressed = false;
+	        }
+	        this.addEventListener("mouseup", f_up);
+	        f_move = function(){
+	            if(v_isPressed){
+	                v_mvX = event.clientX - v_mouseX;
+	                v_mvY = event.clientY - v_mouseY;
+	                
+	                this.style.left = v_nemoSX + v_mvX + "px";
+	                this.style.top = v_nemoSY + v_mvY + "px";
+
+	                console.log(this.style.left);
+	                console.log(this.style.top);
+	            }
+	        }
+	        this.addEventListener("mousemove", f_move);
+	        
+		})
+	}
+}
+
+function positionSave(){
+	var child = $("#BNav").children();
+	
+	for(var i = 0; i < child.length; i++){
+		console.log(child[i].id);
+		console.log(child[i].style.left);
+		console.log(child[i].style.top);
+	}
+}
+
+</script>
+    
+<button type="button" id="modalBtn2" class="btn btn-success" value="${waitPnt.pntCd}" data-toggle="modal" data-target="#myModal2">병동추가</button>
+
+<!-- Modal 자리배치도 -->
+<div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-slideout" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+	        <div style="float: left;"><h5 class="modal-title align-right" id="exampleModalLabel2" style="font-weight: bolder; font-size: 20px;">입원 수속</h5></div>
+	        <button type="button" id="positioning" class="btn btn-success" style="float: right;" onclick="positionBed()">위치 변경</button>
+	        <button type="button" id="positionSave" class="btn btn-success" style="float: right; display:none;" onclick="positionSave()">위치 저장</button>
+        </div>
+      <div class="modal-body" style="background-color:#d9d9d9;">
+      	<div id="BHeader">
+      	</div>
+      	<div id="BAside">
+					  <ul class="tree">
+					    <li>
+					      <input type="checkbox" id="root">
+					      <label for="root">병동정보</label>
+					      <ul>
+					      <c:forEach var="wardVO" items="${wardVOList}">
+					        <li>
+					          <input type="checkbox" id="node${wardVO.wardCls}">
+					          <label for="node${wardVO.wardCls}">${wardVO.wardCls}&nbsp;동</label>
+					          <ul>
+					          	<c:forEach var="roomVO" items="${wardVO.roomVO}">
+					          		<li id="${roomVO.roomCls}" onclick="getRoom(this)">${roomVO.roomCls}&nbsp;호</li>
+					          	</c:forEach>
+					          </ul>
+					        </li>
+					        </c:forEach>
+					      </ul>
+					    </li>
+					  </ul>
+      	</div>
+      	<div id="BNav">
+      	</div>
+	  </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" style="float: right;">등록</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal" style="float: right;">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,14 @@
+package kr.or.ddit.operation.mapper;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import kr.or.ddit.operation.vo.CalendarVO;
+import kr.or.ddit.operation.vo.OperationVO;
+
+public interface OperationMapper {
+	
+	public List<OperationVO> selectOperList();
+	
+	public ArrayList<CalendarVO> operCalendar();
+}

@@ -1,0 +1,31 @@
+package kr.or.ddit.medical.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.medical.mapper.MedicalMapper;
+import kr.or.ddit.medical.service.MedicalService;
+import kr.or.ddit.medical.vo.MedicalVo;
+
+@Service
+public class MedicalServiceImpl implements MedicalService {
+
+	@Autowired
+	MedicalMapper medicalMapper;
+
+	// 진료등록
+	@Override
+	public int insertMedical(MedicalVo medicalVo) {
+		int result = medicalMapper.insertMedical(medicalVo);
+		return result;
+	}
+
+	// 진료목록
+	@Override
+	public List<MedicalVo> selectListMedical(Map<String, Object> map) {
+		return medicalMapper.selectListMedical(map);
+	}
+}

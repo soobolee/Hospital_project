@@ -1,0 +1,10 @@
+package kr.or.ddit.inspection.service;
+
+import java.util.List;
+
+import kr.or.ddit.patients.vo.PatientsVO;
+
+public interface InspectionService {
+
+	public List<PatientsVO> inspWaitList();
+}

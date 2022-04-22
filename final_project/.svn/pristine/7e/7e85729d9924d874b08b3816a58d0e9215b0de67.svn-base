@@ -1,0 +1,70 @@
+package kr.or.ddit.ent.controller;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import kr.or.ddit.ent.service.EntService;
+import kr.or.ddit.ent.vo.EntVO;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@RequestMapping("/ent")
+@Controller
+public class EntController {
+	
+	private static final Logger logger = LoggerFactory.getLogger(EntController.class);
+	
+	@Autowired 
+	EntService entService;
+	
+	@GetMapping("/main")
+	private String entMain(Model model) {
+		
+		List<EntVO> etVO = entService.entPatientList();
+		List<EntVO> etWdVO = entService.entWardPntList();
+		model.addAttribute("etVO", etVO);
+		model.addAttribute("etWdVO", etWdVO);
+		
+		return "ent/entHome";
+	}
+	
+	@GetMapping("/categoryMain")
+	@ResponseBody
+	private List<EntVO> categoryMain(@RequestParam(defaultValue = "entWd") String category){
+		logger.info("category : " + category);
+
+		List<EntVO> etVO = entService.entPatientList();
+		List<EntVO> etWdVO = entService.entWardPntList();
+		
+		if("entWd".equals(category)) {
+			return etWdVO;
+		}else if("notEntWd".equals(category)) {
+			return etVO;
+		}else {
+			return null;
+		}
+	}
+	
+	@PostMapping("/pntModal")
+	@ResponseBody
+	private EntVO pntModal(Model model, @RequestParam String pntCd) {
+		logger.info("sdfdsfsdfsdfsdgrg: " + pntCd);
+		
+		EntVO entVO = entService.patientDetail(pntCd);
+		return entVO;
+	}
+	
+}

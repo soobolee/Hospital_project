@@ -1,0 +1,50 @@
+package kr.or.ddit.security;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+
+import kr.or.ddit.login.vo.LoginVO;
+
+//인증 전에 접근을 시도한 URL(/login)로 redirect하는 기능을 갖고 있음
+//스프링 시큐리티에서 기본적으로 사용되는 구현 클래스
+public class CustomLoginSuccessHandler extends
+	SavedRequestAwareAuthenticationSuccessHandler{
+	private static final Logger logger = 
+			LoggerFactory.getLogger(CustomLoginSuccessHandler.class);
+	
+	@Override
+	public void onAuthenticationSuccess(HttpServletRequest request,
+			HttpServletResponse response, Authentication authentication)
+			throws ServletException, IOException {
+		logger.warn("onAuthenticationSuccess");
+		
+		//스프링 시큐리티에서 기본적으로 제공해주는 사용자 객체
+		//loginForm.jsp의 계정id와 비밀번호 정보를 authentication 객체로 받아옴
+		User customUser = (User) authentication.getPrincipal();
+		
+//		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities(); 
+//		Iterator<? extends GrantedAuthority> iter = authorities.iterator();
+//		while (iter.hasNext()) {
+//			GrantedAuthority auth = iter.next(); 
+//			logger.info(auth.getAuthority()); 
+//		}
+
+		logger.info("username = " + customUser.getUsername());
+		logger.info("password = " + customUser.getPassword());
+		logger.info(customUser.toString());
+		
+		super.onAuthenticationSuccess(request, response, authentication);
+	}
+}

@@ -1,0 +1,11 @@
+package kr.or.ddit.operation.service;
+
+import java.util.List;
+import java.util.Map;
+
+import kr.or.ddit.operation.vo.OperationVO;
+
+public interface OperationService {
+	
+	public List<OperationVO> selectOperList();
+}

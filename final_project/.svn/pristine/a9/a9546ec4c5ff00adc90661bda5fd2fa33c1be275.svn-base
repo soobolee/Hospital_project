@@ -1,0 +1,9 @@
+package kr.or.ddit.ent.service.serviceImpl;
+
+import kr.or.ddit.ent.service.EntService;
+
+public class EntServiceImpl implements EntService {
+	
+	
+	
+}

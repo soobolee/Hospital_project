@@ -1,0 +1,33 @@
+package kr.or.ddit.login.service.impl;
+
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.login.mapper.LoginMapper;
+import kr.or.ddit.login.service.LoginService;
+import kr.or.ddit.login.vo.LoginVO;
+
+@Service
+public class LoginServiceImpl implements LoginService {
+	
+	@Autowired
+	LoginMapper loginMapper;
+	
+	@Override
+	public LoginVO read(String username) {
+		return loginMapper.read(username);
+	}
+
+	@Override
+	public int findPw(Map<String, String> map) {
+		return loginMapper.findPw(map);
+	}
+
+	@Override
+	public int firstLogin(Map<String, String> map) {
+		return loginMapper.firstLogin(map);
+	}
+
+}

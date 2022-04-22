@@ -1,0 +1,324 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<link href='/resources/css/main.css' rel='stylesheet' />
+<script src="/resources/js/jquery-3.6.0.js"></script>
+<script src="/resources/js/main.js"></script>
+<style>
+/* 캘린더 위의 해더 스타일(날짜가 있는 부분) */
+  .fc-header-toolbar {
+    padding-top: 1em;
+    padding-left: 1em;
+    padding-right: 1em;
+  }
+</style>
+<script>
+$(function(){
+
+   	var	title;
+   	var vEvents = [];
+    	 
+    	
+   	 $.ajax({
+   			
+   		 type: 'post',
+   		 dataType: 'json',
+   		 url: '/operation/calendar',
+   		 async: false,
+   		 success: function(data){
+   			// $.each(data, function(i,v){
+   			//	v['end'] = v['end'].split('t')[0];
+   			//	v['start'] = v['start'].split('t')[0];
+   			// });
+   			console.log("success Data : " + data)
+//     		extendedProps: {
+//     department: 'BioChemistry'
+//   },
+   			
+   			console.log("start" + data[0].operBgnHr);
+   			
+   			console.log(Object.keys(data));
+   			console.log(data["0"].state);
+    		console.log(data)	
+   			$.each(data, function(i,v){
+// 				console.log("chrDrrr : " + v.chrDr)
+				console.log("v.title : " + v.title);
+				//--------------v.title / v.start/ v.end가 undefined임.
+  				v.title = v.opRoomNo + " 집도의 : " + v.empNm +" 환자명 : " + v.pntNm;
+// 				v.title = v.chrDr;
+				v.start = v.operBgnTm;
+				v.end = v.operEndTm;
+   				console.log("title : " + v.title);
+   				console.log("start  : " + v.start);
+   				console.log("end : "  + v.end);
+//     			extendedProps: {
+    			        
+//     		      }
+    				
+    		});
+   			 vEvents = data;
+   			 console.log("test",vEvents);
+   			 showCal(vEvents);
+   		 },
+   		 error : function(xhr){
+   			 alert("상태:"+xhr.status);
+   		 }
+    	 
+   	 });
+    	
+    	 
+/* **************************************    	 
+      // calendar element 취득
+      var calendarEl = $('#calendar')[0];
+      // full-calendar 생성하기
+      
+
+      
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+        height: '700px', // calendar 높이 설정
+        expandRows: true, // 화면에 맞게 높이 재설정
+        slotMinTime: '08:00', // Day 캘린더에서 시작 시간
+        slotMaxTime: '24:00', // Day 캘린더에서 종료 시간
+        // 해더에 표시할 툴바
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+        },
+        initialView: 'timeGridWeek', // 초기 로드 될때 보이는 캘린더 화면(기본 설정: 달)
+        //initialDate: '2021-07-15', // 초기 날짜 설정 (설정하지 않으면 오늘 날짜가 보인다.)
+        navLinks: true, // 날짜를 선택하면 Day 캘린더나 Week 캘린더로 링크
+        
+      	
+        editable: false, 
+        
+        selectable: false, // 달력 일자 드래그 설정가능
+        nowIndicator: true, // 현재 시간 마크
+        dayMaxEvents: true, // 이벤트가 오버되면 높이 제한 (+ 몇 개식으로 표현)
+        locale: 'ko', // 한국어 설정
+        
+//         eventAdd: function(obj) { // 이벤트가 추가되면 발생하는 이벤트
+//           console.log(obj);
+//         },
+//         eventChange: function(obj) { // 이벤트가 수정되면 발생하는 이벤트
+//           console.log(obj);
+//         },
+//         eventRemove: function(obj){ // 이벤트가 삭제되면 발생하는 이벤트
+//           console.log(obj);
+//         },
+        
+     	// 이벤트명 : function(){} : 각 날짜에 대한 이벤트를 통해 처리할 내용.. 
+        // (캘린더에서 드래그로 이벤트를 생성할 수 있다.)
+     	select: function(arg) { 
+     	  console.log(arg); 
+     	  var title = prompt('입력할 일정:');
+     	// title 값이 있을때, 화면에 calendar.addEvent() json형식으로 일정을 추가  
+          if (title) {
+            calendar.addEvent({
+              title: title,
+              start: arg.start,
+              end: arg.end,
+              allDay: arg.allDay,
+              backgroundColor:"yellow", 
+			  textColor:"blue" 
+		
+            })
+          }
+          calendar.unselect();
+        },
+//         eventClick: function(arg) { 	// 있는 일정 클릭시, 
+
+// 			var ptitle = (arg.event.title).split('-');
+// 			var ptno = ptitle[1]
+// 			    ptitle = ptitle[0]
+// 			var pstart = arg.event.start;
+// 			var pend = arg.event.end;
+
+// 		if(arg.event._def.extendedProps.state !== '예약가능'){
+// 			alert("현재는 예약이 불가능합니다.")	
+// 		}	
+// 		if(arg.event._def.extendedProps.state !== '예약불가'){
+			
+// 			if (confirm('예약하시겠습니까?')) {
+				
+// 				alert("결제창으로 이동합니다.");
+// 				opener.location.href = "../calendar/placePay.jsp?place_no=" + place_no + "&facilities_no=" + facilities_no + "&placetime_stime=" + pstart + "&placetime_etime=" + pend + "&place_price=" + place_price + "&placetime_no=" + ptno;
+// 				window.close();
+				
+// 				} 
+// 		}	
+// 		}, 
+		
+		// 이벤트 
+		events: vEvents
+		
+      });
+      // 캘린더 랜더링
+      calendar.render();
+      
+      **********************************************/
+      
+});
+    function showCal(vEvents){
+        var calendarEl = $('#calendar')[0];
+        // full-calendar 생성하기
+        
+
+        
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+        	
+          height: '300px', // calendar 높이 설정
+//           aspectRatio : 1.35,
+          expandRows: true, // 화면에 맞게 높이 재설정
+          slotMinTime: '08:00', // Day 캘린더에서 시작 시간
+          slotMaxTime: '24:00', // Day 캘린더에서 종료 시간
+          // 해더에 표시할 툴바
+          headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+          },
+          initialView: 'timeGridDay', // 초기 로드 될때 보이는 캘린더 화면(기본 설정: 달)
+          //initialDate: '2021-07-15', // 초기 날짜 설정 (설정하지 않으면 오늘 날짜가 보인다.)
+          navLinks: true, // 날짜를 선택하면 Day 캘린더나 Week 캘린더로 링크
+          
+        	
+          editable: false, 
+          
+          selectable: false, // 달력 일자 드래그 설정가능
+          nowIndicator: true, // 현재 시간 마크
+          dayMaxEvents: true, // 이벤트가 오버되면 높이 제한 (+ 몇 개식으로 표현)
+          locale: 'ko', // 한국어 설정
+          
+//           eventAdd: function(obj) { // 이벤트가 추가되면 발생하는 이벤트
+//             console.log(obj);
+//           },
+//           eventChange: function(obj) { // 이벤트가 수정되면 발생하는 이벤트
+//             console.log(obj);
+//           },
+//           eventRemove: function(obj){ // 이벤트가 삭제되면 발생하는 이벤트
+//             console.log(obj);
+//           },
+          
+       	// 이벤트명 : function(){} : 각 날짜에 대한 이벤트를 통해 처리할 내용.. 
+          // (캘린더에서 드래그로 이벤트를 생성할 수 있다.)
+       	select: function(arg) { 
+       	  
+       	  var title = prompt('입력할 일정:');
+       	// title 값이 있을때, 화면에 calendar.addEvent() json형식으로 일정을 추가  
+            if (title) {
+              calendar.addEvent({
+                title: title,
+                start: arg.start,
+                end: arg.end,
+                allDay: arg.allDay,
+                backgroundColor:"yellow", 
+    			  textColor:"blue" 
+    		
+              })
+            }
+            calendar.unselect();
+          },
+//           eventClick: function(arg) { 	// 있는 일정 클릭시, 
+
+//    			var ptitle = (arg.event.title).split('-');
+//    			var ptno = ptitle[1]
+//    			    ptitle = ptitle[0]
+//    			var pstart = arg.event.start;
+//    			var pend = arg.event.end;
+
+//    		if(arg.event._def.extendedProps.state !== '예약가능'){
+//    			alert("현재는 예약이 불가능합니다.")	
+//    		}	
+//    		if(arg.event._def.extendedProps.state !== '예약불가'){
+    			
+//    			if (confirm('예약하시겠습니까?')) {
+    				
+//    				alert("결제창으로 이동합니다.");
+//    				opener.location.href = "../calendar/placePay.jsp?place_no=" + place_no + "&facilities_no=" + facilities_no + "&placetime_stime=" + pstart + "&placetime_etime=" + pend + "&place_price=" + place_price + "&placetime_no=" + ptno;
+//    				window.close();
+    				
+//    				} 
+//    		}	
+//    		}, 
+    		
+    		// 이벤트 
+    		events: vEvents
+    		
+        });
+        // 캘린더 랜더링
+        
+        calendar.render();
+
+    	
+    }
+    
+</script>
+
+
+
+<form name="searchForm" id="searchForm" action="/operation/main" method="get"
+	enctype="multipart/form-data"> 
+<div class="main_content_iner">
+	<div class="container-fluid p-0">
+		<div class="row justify-content-center">
+			<div class="col-lg-12">
+				<div class="single_element">
+					<div class="quick_activity">
+						<div class="row no-gutters">
+							<div class="col-12">
+								<div class="quick_activity_wrap">
+<%-- 								<jsp:useBean id="now" class="java.util.Date"/> --%>
+<%-- 								<fmt:formatDate value="${now}" pattern="yyyy-mm-dd HH24:mm:ss" var="today"/> --%>
+<%-- 								<fmt:formatDate value="${operationVO.operYmd }"+"${operationVO.operBgnHr}" pattern="yyyy-MM-dd HH24:mm:ss"/> --%>
+									          <c:forEach var="operationVO" items="${list}" varStatus="stat">
+<%-- 									 <c:if test="${operationVO.operIng eq 'Y'} ">          --%>
+									<div class="col-sm-6 col-md-9 " style="background-color:<c:if test="${operationVO.operIng eq 'Y'}">yellow;</c:if><c:if test="${operationVO.operIng eq 'N'}">blue;</c:if>display:inline-block; border : 3px solid black;" >
+<%-- 									</c:if> --%>
+<%-- 									<c:if test="${operationVO.operIng eq 'N' }"> --%>
+<!-- 									<div class="col-sm-6 col-md-9 " style="background-color:yellow; display:inline-block; border : 3px solid black;" > -->
+<%-- 									</c:if> --%>
+										<div class="card-body p-0 pb-3 text-center ">
+									        <table class="table mb-0">
+									          <tbody>
+									          	<tr>
+									          	<td>수술방 번호 : ${operationVO.opRoomNo}${operationVO.operIng}</td>
+									          	
+									          	</tr>
+									            <tr>
+									             <td><a href="/operation/detail?pntNm=${operationVO.pntNm}">${operationVO.pntNm}</a></td>
+									            </tr>
+									          	
+									            <tr>
+									              <td>${operationVO.operNm}</td>
+									            </tr>
+									            <tr>
+									              <td>${operationVO.operYmd}</td>
+									            </tr>
+									            <tr>  
+									              <td>${operationVO.operBgnTm}</td>
+									              <td>${operationVO.operEndTm}</td>
+									            </tr>
+									          </tbody>
+								        </table>
+								        </div>
+								   		</div>
+									          </c:forEach>
+								</div>
+								<div class="calendar-container" style="width : 1000px" >
+									<div id='calendar'></div>
+								</div>
+								<button type="button" class="btn btn-outline-success">수술 등록</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</form>

@@ -1,0 +1,38 @@
+package kr.or.ddit.patients.vo;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+@AllArgsConstructor
+@Data
+public class PatientsVO {
+	private String pntCd;	//환자 코드
+	private String pntNm;	//이름
+	private String pntPrno;	//주민번호
+	private String pntSex;	//성별
+	private String pntAddr;	//주소
+	private String pntHp;	//연락처
+	private String chrDr;	//담당의사
+	private long height;	//신장
+	private long weight;	//체중
+	private long smkYn;		//흡연 여부	
+	private long drkYn;		//음주 여부
+	private long prgntYn;	//임신 여부
+	private String smoking;	//흡연 여부
+	private String drinking;//음주 여부
+	private String pregnancy;	//임신 여부
+	private String stateCd;	//상태코드
+	private String prtcrNm;	//보호자 이름
+	private String prtcrTel;//보호자 연락처
+	private String age;		//나이
+	private String pntRegDt;//예약일시
+	private long delYn;		//예약등록일자
+	private String vsDt;	//측정일시
+	private long vsBpMax;	//최고혈압
+	private long vsTmp;		//체온
+	private long vsBs;		//혈당
+	private String vsBpMin;	//최저혈압
+	
+}

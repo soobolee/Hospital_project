@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+	<mapper namespace="kr.or.ddit.ent.mapper.EntMapper">
+	
+	<!-- 입원 대기 중인 환자 리스트 출력 쿼리 -->
+	<select id="entPatientList" resultType="entVO">
+		SELECT PNT_CD, PNT_NM, PNT_PRNO, PNT_SEX, PNT_ADDR, PNT_HP, (SELECT EMP_NM FROM EMP WHERE P.CHR_DR = EMP_CD) as chrDr, HEIGHT, WEIGHT, SMK_YN, DRK_YN, PRGNT_YN, STATE_CD, PRTCR_NM, PRTCR_TEL, PNT_REG_DT, DEL_YN, ENABLED 
+		  FROM PATIENT P
+		  WHERE STATE_CD = 'PS5'
+		  ORDER BY PNT_REG_DT DESC
+	</select>
+	
+	<!-- 입원 중인 환자 리스트 출력 쿼리 입원대기 코드 9 -->
+	<select id="entWardPntList" resultType="entVO">
+    SELECT E.ENT_CD, E.DIET_CD, E.LEV_DT, E.ENT_DT, P.PNT_CD, P.PNT_NM, P.PNT_PRNO, P.PNT_SEX, P.PNT_ADDR, P.PNT_HP, P.CHR_DR, P.HEIGHT, P.WEIGHT,
+           P.SMK_YN, P.DRK_YN, P.PRGNT_YN, P.STATE_CD, P.PRTCR_NM, P.PRTCR_TEL, P.PNT_REG_DT, 
+           B.BED_NO,
+           B.ROOM_AMT,
+           B.BED
+      FROM ENT E, PATIENT P, BED B
+     WHERE E.LEV_DT >= TO_CHAR(SYSDATE, 'YYYY/MM/DD')
+       AND E.PNT_CD = P.PNT_CD
+       AND E.BED_NO = B.BED_NO
+       ORDER BY E.ENT_DT DESC
+	</select>
+	
+	
+	<!-- 환자의 상세 정보를 가져오는 쿼리 -->
+	<select id="patientDetail" resultType="entVO" parameterType="String">
+		SELECT PNT_CD, PNT_NM, PNT_PRNO, PNT_SEX, PNT_ADDR, PNT_HP, CHR_DR, HEIGHT, WEIGHT, SMK_YN, DRK_YN, PRGNT_YN, STATE_CD, PRTCR_NM, PRTCR_TEL, PNT_REG_DT, DEL_YN, ENABLED 
+		  FROM PATIENT
+		  WHERE PNT_CD = #{pntCd}
+	</select>
+	
+	<!-- 일반 환자를 입원 대기 중 상태로 변경 -->
+	<update id="updatePntWaitEnt" parameterType="String">
+		UPDATE PATIENT SET STATE_CD = 'PS5' WHERE PNT_CD = #{pntCd}
+	</update>
+	
+	<!-- 입원 대기 중인 환자를 입원 중 상태로 변경 -->
+	<update id="updatePntEnt" parameterType="String">
+		UPDATE PATIENT SET STATE_CD = 'PS6' WHERE PNT_CD = #{pntCd} AND STATE_CD = 'PS5'
+	</update>
+	
+	<!-- 침상에 대한 위치 및 정보 가져오기 -->
+	<select id="getBedRoom" resultType="entVO">
+		SELECT BED_NO, WARD_CLS, ROOM_CLS, ROOM_AMT, ROOM_NOPE, BED, BEDX, BEDY FROM BED
+	</select>
+	
+	<!-- 병동에 조직도를 위한 정보 가져오기 -->
+	<select id="getWard" resultType="entVO">
+		select distinct WARD_CLS, ROOM_CLS from bed
+		order by WARD_CLS asc , ROOM_CLS asc
+	</select>
+		
+	
+	
+<!-- 	상태가 입원중인 환자를 ENT테이블에 업데이트     -->
+<!-- 	<insert id="insertPntEnt" parameterType="entVO"> -->
+<!-- 		INSERT INTO ENT VALUES(ENT_CD, BED_NO, DIET_CD, PNT_CD, ENT_AMT, ENT_DT, LEV_DT); -->
+<!-- 	</insert> -->
+
+	<!-- 상태가 입원중에서 다른걸로 바뀐 환자의 ENT 기록을 업데이트 폐기처분하기 -->
+<!-- 	<update id=""></update> -->
+</mapper>

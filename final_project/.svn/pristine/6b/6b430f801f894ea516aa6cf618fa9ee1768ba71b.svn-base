@@ -1,0 +1,40 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="/resources/css/Dstyle.css">
+  <link rel="stylesheet" href="/resources/css/jquery.datetimepicker.css">
+  <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+  <script src="/resources/js/jquery.datetimepicker.js"></script>
+<script>
+
+</script>
+<div class="main_content_iner ">
+	<div class="container-fluid p-0">
+		<div class="row justify-content-center">
+		<div class="col-12">
+		<div class="QA_section">
+		<div class="white_box_tittle list_header">
+			<h4>예약</h4>
+		</div>
+		<div class="white_box" style="height: auto">
+		<div class="col-lg-4">
+		<div class="white_box mb_30">
+		<div class="input_wrap common_date_picker mb_10">
+
+			<input type="date">
+			<input type="time">
+	
+
+
+		</div>
+		</div>
+		</div>
+		</div>
+		</div>
+		</div>
+		</div>
+	</div>
+</div>

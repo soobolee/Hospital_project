@@ -1,0 +1,12 @@
+package kr.or.ddit.ent.service.serviceImpl;
+
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.ent.service.EntService;
+
+@Service
+public class EntServiceImpl implements EntService {
+	
+	
+	
+}

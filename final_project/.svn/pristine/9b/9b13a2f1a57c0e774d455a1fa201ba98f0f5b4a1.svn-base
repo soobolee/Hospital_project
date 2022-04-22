@@ -1,0 +1,222 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+<!-- 본문 컨텐츠 시작 -->
+<div class="main_content_iner ">
+	<div class="container-fluid p-0">
+		<div class="row justify-content-center">
+			<div class="col-lg-12">
+				<div class="messages_box_area">
+					<div class="messages_list">
+						<div class="white_box ">
+							<ul>
+								<li style="height: 180px;">
+									<a href="#">
+										<div class="message_pre_left">
+											<div class="messges_info">
+												<h4>예약</h4>
+												<p>i know you are doing great in the course.</p>
+											</div>
+										</div>
+										<div class="messge_time" id="yeyak_select">
+											<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">환자목록</button>
+											<div class="dropdown-menu dropdown-menu-right" id="yeyak">
+												<div class="dropdown-item" >Action</div>
+											</div>
+										</div>
+									</a>
+								</li>
+								<li style="height: 180px;">
+									<a href="#">
+										<div class="message_pre_left">
+											<div class="messges_info">
+												<h4>대기</h4>
+												<p>i know you are doing great in the course.</p>
+											</div>
+										</div>
+										<div class="messge_time" id="daegi_select">
+											<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">환자목록</button>
+											<div class="dropdown-menu dropdown-menu-right" id="daegi">
+												<div class="dropdown-item" >Action</div>
+											</div>
+										</div>
+									</a>
+								</li>
+<!--
+								<li style="height: 180px;">
+									<a href="#">
+										<div class="message_pre_left">
+											<div class="messges_info">
+												<h4>진료</h4>
+												<p>i know you are doing great in the course.</p>
+											</div>
+										</div>
+										<div class="messge_time">
+											<span>+</span>
+										</div>
+									</a>
+								</li>
+								<li style="height: 180px;">
+									<a href="#">
+										<div class="message_pre_left">
+											<div class="messges_info">
+												<h4>수납</h4>
+												<p>i know you are doing great in the course.</p>
+											</div>
+										</div>
+										<div class="messge_time">
+											<span>+</span>
+										</div>
+									</a>
+								</li>
+  -->
+							</ul>
+						</div>
+					</div>
+					<div class="messages_chat mb_30">
+						<div class="white_box_tittle">
+							<h4>환자정보</h4>
+						</div>
+						<div class="white_box ">
+							<form id="frm" name="frm">
+								<div class="single_message_chat">
+									<div class="message_pre_left">
+										<div class="message_preview_thumb">
+											<img src="/resources/img/messages/1.png" alt="">
+										</div>
+										<div class="messges_info">
+											<div class="input-group input-group-sm mb-3">
+												<div class="input-group-prepend">
+													<span class="input-group-text" id="inputGroup-sizing-sm">이름</span>
+												</div>
+												<input type="text" class="form-control" aria-label="Small"
+													aria-describedby="inputGroup-sizing-sm">
+												<div class="input-group-prepend">
+													<span class="input-group-text" id="inputGroup-sizing-sm">생년월일</span>
+												</div>
+												<input type="text" class="form-control" aria-label="Small"
+													aria-describedby="inputGroup-sizing-sm">
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="message_content_view">
+									<div class="input-group input-group-sm mb-3">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="inputGroup-sizing-sm">주소</span>
+										</div>
+										<input type="text" class="form-control" aria-label="Small"
+											aria-describedby="inputGroup-sizing-sm">
+									</div>
+									<div class="input-group input-group-sm mb-3">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="inputGroup-sizing-sm">연락처</span>
+										</div>
+										<input type="text" class="form-control" aria-label="Small"
+											aria-describedby="inputGroup-sizing-sm">
+									</div>
+									<div class="input-group input-group-sm mb-3">
+										<div class="input-group-prepend">
+											<span class="input-group-text" id="inputGroup-sizing-sm">증상</span>
+										</div>
+										<input type="text" class="form-control" aria-label="Small"
+											aria-describedby="inputGroup-sizing-sm">
+									</div>
+								</div>
+							</form>
+							<button class="btn_1" type="button" id="jinryoHagi">진료하기</button>
+						</div>
+						<br />
+						<div class="white_box ">
+							<div class="messages_chat mb_30">
+								<p>ㅁㅁㅁㅁ</p>
+								<p>ㅁㅁㅁㅁ</p>
+								<p>ㅁㅁㅁㅁ</p>
+								<p>ㅁㅁㅁㅁ</p>
+								<p>ㅁㅁㅁㅁ</p>
+								<div class="message_send_field">
+									<input type="text" placeholder="Write your message" value="">
+									<button class="btn_1" type="submit">코멘트</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+
+	/*환자목록*/
+	var callSelectListMedical = function(){
+		$.get("/medical/selectListMedical")
+		.done(function(data) {
+			if(data.check == true){
+				console.log('응답결과');
+				console.log(data);
+				console.log('=====');
+				if(data.response){
+					var list = data.response;
+					var yeyakList, daegiList;
+					yeyakList = list.filter(list => list.state == '예약');
+					daegiList = list.filter(list => list.state == '대기');
+					console.log('예약환자목록');
+					console.log(yeyakList);
+					console.log('대기환자목록');
+					console.log(daegiList);
+					
+					yeyakList.length > 0 ? $('#yeyak').html( fnCreateListHtml(yeyakList) ) : $('#yeyak_select').hide();
+					daegiList.length > 0 ? $('#daegi').html( fnCreateListHtml(daegiList)) : $('#daegi_select').hide();
+				}				
+			}
+		}) 
+		.fail(function(data) { 
+			console.log('callSelectListMedical 호출 에러발생');
+			console.log(data);
+		}) 		
+	}
+	
+	//목록생성태그
+	var fnCreateListHtml = function(list){
+		return	list.map(function(value){
+			return $('<div/>', {'class': 'dropdown-item', 'text': value.pntNm});
+		});	
+	}
+
+	/* 	
+	var callInsert = function(data){
+		console.log('callInsert @@@@@@@ data : '+data);
+		$.post("/medical/insert"
+				,{no: "devmk", nm: 3})
+				.done(function(data) { 
+					console.log('insert done');
+					console.log(data.response);
+				}) 
+				.fail(function(data) { 
+					alert("error" ); 
+				}) 		
+	}
+ 	*/
+
+ 	$(document).ready(function(){
+		callSelectListMedical();
+		//callInsert('test');
+	})
+
+	
+	
+	
+</script>
+<div class="footer_part">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="footer_iner text-center">
+					<p>2020 © Influence - Designed by <a href="#"> <i class="ti-heart"></i> </a><a href="#">
+							Dashboard</a></p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

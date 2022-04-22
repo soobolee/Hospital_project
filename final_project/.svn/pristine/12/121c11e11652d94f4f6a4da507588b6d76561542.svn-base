@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.ddit.login.mapper.LoginMapper">
+	<!-- 회원상세정보 resultMap -->
+	<resultMap type="kr.or.ddit.login.vo.LoginVO" id="userAuthMap">
+		<id     property="username" column="USERNAME" />
+		<result property="nm" column="NM" />
+		<result property="password" column="PASSWORD" />
+		<result property="secCd" column="SEC_CD" />
+		<result property="rrno" column="RRNO" />
+		<result property="telno" column="TELNO" />
+		<result property="lcnsNo" column="LCNS_NO" />
+		<result property="addr" column="ADDR" />
+		<result property="joinYmd" column="JOIN_YMD" />
+		<result property="rtrmYn" column="RTRM_YN" />
+		<result property="state" column="STATE" />
+		<result property="enabled" column="ENABLED" />
+		<result property="secNm" column="SEC_NM" />
+		
+		<collection property="authList" resultMap="authMap"></collection>
+	</resultMap>
+	
+	<resultMap type="kr.or.ddit.login.vo.UserAuth" id="authMap">
+		<result property="username" column="USERNAME" />
+		<result property="auth" column="AUTH" />
+	</resultMap>
+	
+	<!-- 로그인 정보 -->
+	<select id="read" parameterType="String" resultMap="userAuthMap">
+		SELECT VU.USERNAME,VU.NM,VU.PASSWORD,VU.SEC_CD,VU.RRNO,
+			   VU.TELNO,VU.LCNS_NO,VU.ADDR,VU.JOIN_YMD,VU.RTRM_YN,
+			   VU.STATE,VU.ENABLED,VU.SEC_NM,UA.AUTH
+		  FROM VW_USER VU LEFT OUTER JOIN USER_AUTH UA
+		       ON(VU.USERNAME=UA.USERNAME)
+		 WHERE VU.USERNAME=#{username}
+	</select>
+	
+	<!-- 최초 로그인 확인 -->
+	<select id="firstLogin" parameterType="map" resultType="int">
+		SELECT COUNT(*)
+		  FROM EMP
+		 WHERE EMP_CD=#{username}
+		   AND EMP_PW=#{password}
+		   AND STATE_CD='ES0'
+	</select>
+	
+	<!-- 비밀번호 찾기 -->
+	<select id="findPw" parameterType="map" resultType="int">
+		SELECT COUNT(*)
+		  FROM EMP
+		 WHERE EMP_CD=#{empCd}
+		   AND EMP_MAIL=#{email}
+	</select>
+</mapper>

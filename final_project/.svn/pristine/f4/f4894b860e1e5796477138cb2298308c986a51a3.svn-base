@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="kr.or.ddit.patients.mapper.PatientsMapper">
+	<insert id="insertPatients" parameterType="patientsVO">
+		INSERT INTO PATIENT(PNT_CD, PNT_NM
+							, PRNO, TELNO
+							, ADDR, CHR_DR
+							, HEIGHT, WEIGHT
+							, SMK_YN, DRK_YN
+							, STATE, PRTCR_NM
+							, PRTCR_TEL)
+		VALUES('PTN'||LPAD(PATIENTS_SEQ.NEXTVAL,6,0),${pntNm}
+				,${prno},${telno},${addr},${chrDr},${height}
+				,${weight},${smkYn},${drkYn},${state}
+				,${prtcrNm},${prtcrTel})
+	</insert>
+	
+	<select id="patientsList" parameterType="hashMap" resultType="patientsVo">
+		SELECT PNT_CD, PNT_NM
+			   , PRNO, TELNO
+			   , ADDR, CHR_DR
+			   , HEIGHT, WEIGHT
+			   , SMK_YN, DRK_YN
+			   , STATE, PRTCR_NM
+			   , PRTCR_TEL
+		FROM PATIENT
+	</select>
+</mapper>

@@ -1,0 +1,18 @@
+package kr.or.ddit.drug.vo;
+
+import lombok.Data;
+
+@Data
+public class DrugVO {
+	
+	private String drugCd;
+	private String baisCd;
+	private String drugCm;
+	private String admst;
+	private int clsCd;
+	private String drugStnd;
+	private String drugUnit;
+	private int drugAmt;
+	private int drugStock;
+	
+}

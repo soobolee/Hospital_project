@@ -1,0 +1,15 @@
+package kr.or.ddit.login.service;
+
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.login.vo.LoginVO;
+
+public interface LoginService {
+	public LoginVO read(String username);
+	
+	public int findPw(Map<String, String> map);
+	
+	public int firstLogin(Map<String, String> map);
+}

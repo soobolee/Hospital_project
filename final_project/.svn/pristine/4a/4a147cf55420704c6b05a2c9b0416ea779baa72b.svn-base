@@ -1,0 +1,40 @@
+package kr.or.ddit.ent.service.serviceImpl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import kr.or.ddit.ent.mapper.EntMapper;
+import kr.or.ddit.ent.service.EntService;
+import kr.or.ddit.ent.vo.EntVO;
+
+@Service
+public class EntServiceImpl implements EntService {
+	
+	@Autowired
+	EntMapper entMapper;
+	
+	@Override
+	public List<EntVO> entPatientList() {
+		return entMapper.entPatientList();
+	}
+
+	@Override
+	public EntVO patientDetail(String pntCd) {
+		return entMapper.patientDetail(pntCd);
+	}
+
+	@Override
+	public List<EntVO> entWardPntList() {
+		return entMapper.entWardPntList();
+	}
+
+	@Override
+	public int updatePntEnt(String pntCd) {
+		return entMapper.updatePntEnt(pntCd);
+	}
+	
+	
+	
+}
