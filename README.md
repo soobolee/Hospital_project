@@ -4,24 +4,24 @@
 
 두 달간 Spring 프레임워크를 공부하고 만들어 본 프로젝트
 
-## 프로젝트 소개
+## 💻 프로젝트 소개
 - <strong>Spring</strong> + JSP를 이용한 병원관리 사이트로 <br />
 <strong>EMR(전자건강기록) + CRM(고객관리)</strong> 을 병합하는데 목적을 두고 개발하였다.
   
 <hr />
 
-## 개발기간
+## 📆 개발기간
 - 2022년 02월 14일 ~ 2022년 04월 20일
 <hr />
 
-## 개발멤버
-- 멤버1 <strong>[본인]</strong> : 정리 중
-- 멤버2 : 정리 중
-- 멤버3 : 정리 중
-- 멤버4 : 정리 중
+## 😘 개발멤버
+- 멤버1 <strong>[본인]</strong>[이씨] : 입원관련, 직원관리, 수납관련
+- 멤버2[이씨] : 퇴원관련, 산출물관리
+- 멤버3[곽씨] : 진료관련, DB테이블
+- 멤버4[강씨] : 관리자페이지
 <hr />
 
-## 개발환경
+## 🏢 개발환경
 #### IDE
 - Eclipse IDE 4.16.0
 #### Lenguage, DB, WAS, FrameWork
@@ -44,11 +44,21 @@
 - spring-security 5.0.7
 - poi 5.2.2
 #### ThirdParty
- - 정리 중
+- 아임포트 결제기능
+- 풀캘린더
 <hr />
 
-## 구현기능
-- 정리 중
+## 🏙️ 구현기능
+- 입원관리
+- 병동관리
+- 직원관리
+- 수납 및 영수증
+
+- 개인블로그 Velog글로 정리
+<br />
+
+[![Velog's GitHub stats](https://velog-readme-stats.vercel.app/api?name=sjsrkdgks&tag=forGitFinalProjBookMarkBarSooBo)](https://velog.io/@sjsrkdgks/%ED%8C%8C%ED%8A%B8%EB%B3%84-gif)
+
 
 <!-- <details>
   <summary>
